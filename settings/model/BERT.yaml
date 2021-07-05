@@ -1,0 +1,4 @@
+name: BERT
+predictions:
+  dir: ../resource/
+  name: preds

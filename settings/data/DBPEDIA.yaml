@@ -1,0 +1,6 @@
+name: DBPEDIA
+
+dir: ../resources/datasets/DBPEDIA/
+
+batch_size: 16
+num_workers: 64
