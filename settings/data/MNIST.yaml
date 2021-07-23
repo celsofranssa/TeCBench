@@ -1,8 +1,0 @@
-name: MNIST
-
-dir: resource/dataset/mnist/
-
-folds: [0]
-
-batch_size: 16
-num_workers: 64

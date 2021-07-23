@@ -1,3 +1,13 @@
 defaults:
-  - model: BERT
-  - data: MNIST
+  - model: BERT_NO_POOL
+  - data: 20ng
+
+trainer:
+  max_epochs: 16
+  gpus: 1
+  enable_pl_optimizer: False
+  patience: 7
+  min_delta: 0.01
+  precision: 16
+  fast_dev_run: False
+  progress_bar_refresh_rate: 20

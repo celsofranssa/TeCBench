@@ -1,0 +1,26 @@
+name: BERT_NO_POOL
+
+encoder:
+  _target_: source.encoder.BertEncoder.BertEncoder
+  architecture: bert-base-cased
+  output_attentions: False
+  pooling:
+    _target_: source.pooling.NoPooling.NoPooling
+
+hidden_size: 768
+
+num_cls: 20
+
+lr: 1e-5
+base_lr: 1e-7
+max_lr: 1e-3
+weight_decay: 1e-2
+
+dropout: 0.1
+
+tokenizer:
+  architecture: bert-base-cased
+
+predictions:
+  dir: ../resources/predictions/
+  name: ${model.name}_${data.name}_predictions.pt
