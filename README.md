@@ -20,7 +20,7 @@ source ./venv/bin/activate
 pip install -r requirements.txt
 
 # setting python path
-export PYTHONPATH=$PATHONPATH:<path-to-project-dir>/xCoFormer/
+export PYTHONPATH=$PATHONPATH:<path-to-project-dir>/TeCBench/
 
 # (if you need) to exit virtualenv later:
 deactivate
