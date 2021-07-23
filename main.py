@@ -60,7 +60,6 @@ def fit(params):
         max_epochs=params.trainer.max_epochs,
         precision=params.trainer.precision,
         gpus=params.trainer.gpus,
-        enable_pl_optimizer=params.trainer.enable_pl_optimizer,
         progress_bar_refresh_rate=params.trainer.progress_bar_refresh_rate,
         #logger=tb_logger,
         #callbacks=[checkpoint_callback, early_stopping_callback, lr_monitor]
