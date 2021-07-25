@@ -2,14 +2,14 @@ name: BERT_NO_POOL
 
 encoder:
   _target_: source.encoder.BertEncoder.BertEncoder
-  architecture: bert-base-cased
+  architecture: bert-base-uncased
   output_attentions: False
   pooling:
     _target_: source.pooling.NoPooling.NoPooling
 
 hidden_size: 768
 
-num_cls: 20
+num_classes: ${data.num_classes}
 
 lr: 1e-5
 base_lr: 1e-7

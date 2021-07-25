@@ -51,8 +51,6 @@ def fit(params):
     print(f"Fitting with fowling params\n"
           f"{OmegaConf.to_yaml(params)}"
           )
-    # init model
-    tec_model = TecModel(params.model)
 
     # Initialize a trainer
     trainer = pl.Trainer(
@@ -68,15 +66,11 @@ def fit(params):
     tokenizer = get_tokenizer(params.model)
 
     for fold in params.data.folds:
-        # load data
-        dm = TeCDataModule(params.data, tokenizer, fold=fold)
-
         # Train the ⚡ model
         trainer.fit(
-            model=tec_model,
-            datamodule=dm
+            model=TecModel(params.model),
+            datamodule=TeCDataModule(params.data, tokenizer, fold=fold)
         )
-    pool = NoPooling()
 
 
 @hydra.main(config_path="settings/", config_name="settings.yaml")

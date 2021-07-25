@@ -2,7 +2,9 @@ import pytorch_lightning as pl
 import torch
 from hydra.utils import instantiate
 from torch import nn
-from torchmetrics import F1
+from torchmetrics import MetricCollection
+
+from source.metric.F1 import F1
 
 
 class TecModel(pl.LightningModule):
@@ -15,14 +17,22 @@ class TecModel(pl.LightningModule):
 
         self.cls_head = torch.nn.Sequential(
             torch.nn.Dropout(hparams.dropout),
-            torch.nn.Linear(hparams.hidden_size, hparams.num_cls),
+            torch.nn.Linear(hparams.hidden_size, hparams.num_classes),
             torch.nn.LogSoftmax(dim=-1)
         )
 
+        self.train_metrics = self.get_metrics(prefix="train_")
+        self.val_metrics = self.get_metrics(prefix="val_")
+
         self.loss = nn.NLLLoss()
 
-        self.train_macro_f1 = F1(num_classes=self.hparams.num_cls, average="macro")
-        self.val_macro_f1 = F1(num_classes=self.hparams.num_cls, average="macro")
+    def get_metrics(self, prefix):
+        return MetricCollection(
+            metrics={
+                "MicF1": F1(average="micro"),
+                "MacF1": F1(average="macro")
+            },
+            prefix=prefix)
 
     def forward(self, text):
         return self.encoder(text)
@@ -32,19 +42,23 @@ class TecModel(pl.LightningModule):
         preds = self.cls_head(
             self(text)
         )
-        loss = self.loss(preds, cls)
+        train_loss = self.loss(preds, cls)
 
         # log training loss
-        self.log('train_loss', loss)
+        self.log('train_loss', train_loss)
 
-        # log macro f1
-        self.log('train_macro_f1', self.train_macro_f1(preds, cls), prog_bar=True)
+        ts_metrics = self.train_metrics(preds, cls)
 
-        return loss
+        # print(f"\n cls: \n{cls}")
+        # print(f"\n preds: \n{preds}")
+        # print(f"\n ts_metrics: \n{ts_metrics}")
+
+        self.log_dict(ts_metrics, prog_bar=True)
+
+        return train_loss
 
     def training_epoch_end(self, outs):
-        # log epoch metric
-        self.log('train_f1_epoch', self.train_macro_f1.compute())
+        pass
 
     def validation_step(self, batch, batch_idx):
         text, cls = batch["text"], batch["cls"]
@@ -57,12 +71,10 @@ class TecModel(pl.LightningModule):
         self.log('val_loss', loss)
 
         # log macro f1
-        self.log('val_f1', self.val_macro_f1(preds, cls), prog_bar=True)
-
-        return loss
+        self.log_dict(self.val_metrics(preds, cls), prog_bar=True)
 
     def validation_epoch_end(self, outs):
-        self.log('val_macro_f1_epoch', self.val_macro_f1.compute())
+        pass
 
     def test_step(self, batch, batch_idx):
         x, y = batch["x"], batch["y"]

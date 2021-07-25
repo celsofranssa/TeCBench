@@ -6,7 +6,7 @@ folds: [1,2,3,4,5]
 
 max_length: 256
 
-num_cls: 20
+num_classes: 20
 
 batch_size: 32
 num_workers: 64

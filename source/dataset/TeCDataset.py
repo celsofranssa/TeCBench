@@ -22,7 +22,7 @@ class TeCDataset(Dataset):
                 self.samples.append({
                     "idx": sample["idx"],
                     "text": sample["text"],
-                    "cls": int(sample["cls"])
+                    "cls": sample["cls"]
                 })
 
     def _encode(self, sample):
