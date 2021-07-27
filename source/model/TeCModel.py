@@ -2,9 +2,7 @@ import pytorch_lightning as pl
 import torch
 from hydra.utils import instantiate
 from torch import nn
-from torchmetrics import MetricCollection
-
-from source.metric.F1 import F1
+from torchmetrics import MetricCollection, F1
 
 
 class TecModel(pl.LightningModule):
@@ -29,8 +27,8 @@ class TecModel(pl.LightningModule):
     def get_metrics(self, prefix):
         return MetricCollection(
             metrics={
-                "MicF1": F1(average="micro"),
-                "MacF1": F1(average="macro")
+                "Mic-F1": F1(num_classes=self.hparams.num_classes, average="micro"),
+                "Wei-F1": F1(num_classes=self.hparams.num_classes, average="weighted")
             },
             prefix=prefix)
 
@@ -38,51 +36,51 @@ class TecModel(pl.LightningModule):
         return self.encoder(text)
 
     def training_step(self, batch, batch_idx):
-        text, cls = batch["text"], batch["cls"]
-        preds = self.cls_head(
+        text, true_cls = batch["text"], batch["cls"]
+        pred_cls = self.cls_head(
             self(text)
         )
-        train_loss = self.loss(preds, cls)
+        train_loss = self.loss(pred_cls, true_cls)
 
         # log training loss
         self.log('train_loss', train_loss)
 
-        ts_metrics = self.train_metrics(preds, cls)
-
-        # print(f"\n cls: \n{cls}")
-        # print(f"\n preds: \n{preds}")
-        # print(f"\n ts_metrics: \n{ts_metrics}")
-
-        self.log_dict(ts_metrics, prog_bar=True)
+        self.log_dict(self.train_metrics(pred_cls, true_cls), prog_bar=True)
 
         return train_loss
 
     def training_epoch_end(self, outs):
-        pass
+        self.train_metrics.compute()
 
     def validation_step(self, batch, batch_idx):
-        text, cls = batch["text"], batch["cls"]
-        preds = self.cls_head(
+        text, true_cls = batch["text"], batch["cls"]
+        pred_cls = self.cls_head(
             self(text)
         )
-        loss = self.loss(preds, cls)
+        val_loss = self.loss(pred_cls, true_cls)
 
-        # log training loss
-        self.log('val_loss', loss)
+        # log val loss
+        self.log('val_loss', val_loss)
 
-        # log macro f1
-        self.log_dict(self.val_metrics(preds, cls), prog_bar=True)
+        # log val metrics
+        self.log_dict(self.val_metrics(pred_cls, true_cls), prog_bar=True)
 
     def validation_epoch_end(self, outs):
-        pass
+        self.val_metrics.compute()
 
     def test_step(self, batch, batch_idx):
-        x, y = batch["x"], batch["y"]
-        z = self.encoder(x)
-        x_hat = self.decoder(z)
-        loss = self.loss(x_hat, x)
-        self.log('test_loss', loss)
-        return loss
+        idx, text, true_cls = batch["idx"], batch["text"], batch["cls"]
+        rpr = self.encoder(text)
+        pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
+
+        self.write_prediction_dict(
+            {
+                "idx": idx,
+                "rpr": rpr,
+                "true_cls": true_cls,
+                "pred_cls": pred_cls
+            },
+            self.hparams.prediction.dir + self.hparams.prediction.name)
 
     def configure_optimizers(self):
         # optimizer

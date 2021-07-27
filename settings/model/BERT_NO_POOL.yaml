@@ -21,6 +21,6 @@ dropout: 0.1
 tokenizer:
   architecture: bert-base-cased
 
-predictions:
-  dir: ../resources/predictions/
-  name: ${model.name}_${data.name}_predictions.pt
+prediction:
+  dir: resource/prediction/
+  name: ${model.name}_${data.name}.prd

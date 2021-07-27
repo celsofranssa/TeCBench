@@ -18,6 +18,10 @@ class F1(Metric):
         self.target=torch.cat([self.target, target])
 
     def compute(self):
+        """
+        TODO: https://stackoverflow.com/questions/62265351/measuring-f1-score-for-multiclass-classification-natively-in-pytorch
+        :return:
+        """
         return f1_score(
             self.target.cpu(),
             self.prediction.cpu(),

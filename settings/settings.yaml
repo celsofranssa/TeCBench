@@ -1,11 +1,23 @@
 defaults:
   - model: BERT_NO_POOL
-  - data: 20ng
+  - data: acm
+
+
+log:
+  dir: resource/log/
+
+model_checkpoint:
+  dir: resource/model_checkpoint/
+
+stat:
+  dir: resource/stat/
+
+tasks: [ "fit" ]
 
 trainer:
-  max_epochs: 16
+  max_epochs: 8
   gpus: 1
-  patience: 7
+  patience: 3
   min_delta: 0.01
   precision: 16
   fast_dev_run: False
