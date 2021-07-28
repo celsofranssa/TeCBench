@@ -72,3 +72,7 @@ LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
 Epoch 0: 100%|███████████████████████████████████████████████████████| 5199/5199 [13:06<00:00,  6.61it/s, loss=5.57, v_num=1, val_mrr=0.041, val_loss=5.54]
 
 ```
+
+### Benchmark Results
+
+![bench-results](resource/assets/bench_results.png)
