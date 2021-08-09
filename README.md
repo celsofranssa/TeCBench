@@ -27,24 +27,61 @@ deactivate
 ```
 
 ### 2. Datasets
-After downloading the datasets from [Kaggle Datasets](https://www.kaggle.com/aldebbaran/TeCBench ), it should be placed inside the `resources/datasets/` folder as shown below:
+Downloading the datasets from [Kaggle Datasets](https://www.kaggle.com/celsofranssa/tecbench-datasets) 
+(get kaggle credentials on [Kaggle API Docs](https://github.com/Kaggle/kaggle-api#api-credentials)):
 
+```shell script
+kaggle datasets download \
+    --unzip \
+    -d celsofranssa/tecbench-datasets \
+    -p resource/dataset/
 ```
-xCoFormer/
-|-- resources
-|   |-- datasets
-|   |   |-- 20ng
-|   |   |   |-- test.jsonl
-|   |   |   |-- train.jsonl
-|   |   |   `-- val.jsonl
-|   |   `-- acm
-|   |       |-- test.jsonl
-|   |       |-- train.jsonl
-|   |       `-- val.jsonl
+
+Make sure that after completing the download of the datasets the file structure is as follows:
+
+```shell script
+TeCBench/
+├── main.py
+├── requirements.txt
+├── resource
+│   ...
+│   ├── dataset
+│   │   ├── 20ng
+│   │   │   ├── fold_1
+│   │   │   │   ├── test.jsonl
+│   │   │   │   ├── train.jsonl
+│   │   │   │   └── val.jsonl
+│   │   │   ...
+│   │   │   └── fold_9
+│   │   │       ├── test.jsonl
+│   │   │       ├── train.jsonl
+│   │   │       └── val.jsonl
+|   |   ...
+│   │   ├── yelp_2015
+│   │   │   ├── fold_1
+│   │   │   │   ├── test.jsonl
+│   │   │   │   ├── train.jsonl
+│   │   │   │   └── val.jsonl
+|   |   |   ...
+│   │   │   └── fold_5
+│   │   │       ├── test.jsonl
+│   │   │       ├── train.jsonl
+│   │   │       └── val.jsonl
+│   ├── log
+│   ├── model_checkpoint
+│   ├── prediction
+│   └── stat
+├── settings
+│   ...
+│   └── settings.yaml
+└── source
+    ...
 ```
+
+
 
 ### 3. Test Run
-The following bash command fits the RNN model over Java dataset using batch_size=128 and a single epoch.
+The following bash command fits the BERT model over 20NG dataset using batch_size=128 and a single epoch.
 ```
 python main.py tasks=[fit] model=BERT_NO_POOL data=20NG data.batch_size=32 trainer.max_epochs=1
 ```
