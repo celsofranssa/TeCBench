@@ -111,7 +111,6 @@ def eval(params):
 
 @hydra.main(config_path="settings/", config_name="settings.yaml")
 def perform_tasks(params):
-    print(hydra.utils.get_original_cwd())
     os.chdir(hydra.utils.get_original_cwd())
     OmegaConf.resolve(params)
     if "fit" in params.tasks:
