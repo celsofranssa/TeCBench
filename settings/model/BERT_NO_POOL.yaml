@@ -24,3 +24,7 @@ tokenizer:
 prediction:
   dir: resource/prediction/
   name: ${model.name}_${data.name}.prd
+
+representation:
+  dir: resource/representation/
+  name: ${model.name}_${data.name}.rep

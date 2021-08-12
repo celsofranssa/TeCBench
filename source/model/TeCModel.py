@@ -82,6 +82,20 @@ class TecModel(pl.LightningModule):
             },
             self.hparams.prediction.dir + self.hparams.prediction.name)
 
+    def predict_step(self, batch, batch_idx):
+        idx, text, true_cls = batch["idx"], batch["text"], batch["cls"]
+        rpr = self.encoder(text)
+        pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
+
+        self.write_prediction_dict(
+            {
+                "idx": idx,
+                "rpr": rpr,
+                "true_cls": true_cls,
+                "pred_cls": pred_cls
+            },
+            self.hparams.representation.dir + self.hparams.representation.name)
+
     def configure_optimizers(self):
         # optimizer
         optimizer = torch.optim.AdamW(

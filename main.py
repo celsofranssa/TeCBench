@@ -49,7 +49,7 @@ def get_tokenizer(hparams):
     return tokenizer
 
 
-def fit(params):
+def train(params):
 
     for fold in params.data.folds:
         print(f"Fitting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
@@ -74,7 +74,7 @@ def fit(params):
         )
 
 
-def predict(params):
+def test(params):
 
     for fold in params.data.folds:
         print(f"Predicting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
@@ -108,17 +108,45 @@ def eval(params):
     evaluator = EvalHelper(params)
     evaluator.perform_eval()
 
+def predict(params):
+
+    for fold in params.data.folds:
+        print(f"Predicting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
+              f"{OmegaConf.to_yaml(params)}\n")
+
+
+        # data
+        dm = TeCDataModule(params.data, get_tokenizer(params.model), fold=fold)
+
+        # model
+        model = TecModel.load_from_checkpoint(
+            checkpoint_path=f"{params.model_checkpoint.dir}{params.model.name}_{params.data.name}_{fold}.ckpt"
+        )
+
+        model.hparams.representation.name = f"{params.model.name}_{params.data.name}_{fold}.rep"
+
+        # trainer
+        trainer = pl.Trainer(gpus=params.trainer.gpus)
+
+        # predicting
+        trainer.predict(
+            model=model,
+            datamodule=dm
+        )
+
 
 @hydra.main(config_path="settings/", config_name="settings.yaml")
 def perform_tasks(params):
     os.chdir(hydra.utils.get_original_cwd())
     OmegaConf.resolve(params)
-    if "fit" in params.tasks:
-        fit(params)
-    if "predict" in params.tasks:
-        predict(params)
+    if "train" in params.tasks:
+        train(params)
+    if "test" in params.tasks:
+        test(params)
     if "eval" in params.tasks:
         eval(params)
+    if "predict" in params.tasks:
+        predict(params)
 
 
 if __name__ == '__main__':
