@@ -83,7 +83,7 @@ TeCBench/
 ### 3. Test Run
 The following bash command fits the BERT model over 20NG dataset using batch_size=128 and a single epoch.
 ```
-python main.py tasks=[fit] model=BERT_NO_POOL data=20NG data.batch_size=32 trainer.max_epochs=1
+python main.py tasks=[train] model=BERT_NO_POOL data=20NG data.batch_size=32 trainer.max_epochs=1
 ```
 If all goes well the following output should be produced:
 ```

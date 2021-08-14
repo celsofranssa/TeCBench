@@ -1,3 +1,5 @@
+import os.path
+
 import pytorch_lightning as pl
 
 from torch.utils.data import DataLoader
@@ -18,22 +20,34 @@ class TeCDataModule(pl.LightningDataModule):
 
     def setup(self, stage=None):
 
-        if stage == 'fit' or stage is None:
+        if stage == 'train' or stage is None:
             self.train_dataset = TeCDataset(
-                dataset_path=self.params.dir + f"fold_{self.fold}/train.jsonl",
+                dataset_path=self.params.dataset_path,
+                ids_path=self.params.dir + f"fold_{self.fold}/predict.pkl",
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
             )
 
             self.val_dataset = TeCDataset(
-                dataset_path=self.params.dir + f"fold_{self.fold}/test.jsonl",
+                dataset_path=self.params.dataset_path,
+                ids_path=self.params.dir + f"fold_{self.fold}/val.pkl",
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
             )
 
-        if stage == 'test' or stage is None:
+        if stage == 'test':
             self.test_dataset = TeCDataset(
-                dataset_path=self.params.dir + f"fold_{self.fold}/test.jsonl",
+                dataset_path=self.params.dataset_path,
+                ids_path=self.params.dir + f"fold_{self.fold}/test.pkl",
+                tokenizer=self.tokenizer,
+                max_length=self.params.max_length
+
+            )
+
+        if stage == 'predict' or stage is None:
+            self.pred_dataset = TeCDataset(
+                dataset_path=os.path.join(self.params.dir, "samples.pkl"),
+                ids_path=os.path.join(self.params.dir, f"fold_{self.fold}/predict.pkl"),
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
 
@@ -64,8 +78,9 @@ class TeCDataModule(pl.LightningDataModule):
         )
 
     def predict_dataloader(self):
-        return [
-            self.train_dataloader(),
-            self.val_dataloader(),
-            self.test_dataloader()
-        ]
+        return DataLoader(
+            self.pred_dataset,
+            batch_size=self.params.batch_size,
+            shuffle=False,
+            num_workers=self.params.num_workers
+        )

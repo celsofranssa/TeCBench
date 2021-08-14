@@ -8,6 +8,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
 from transformers import AutoTokenizer
 
+from source.callback.dd import CustomWriter
 from source.datamodule.TecDataModule import TeCDataModule
 from source.helper.EvalHelper import EvalHelper
 from source.model.TeCModel import TecModel
@@ -126,12 +127,17 @@ def predict(params):
         model.hparams.representation.name = f"{params.model.name}_{params.data.name}_{fold}.rep"
 
         # trainer
-        trainer = pl.Trainer(gpus=params.trainer.gpus)
+        trainer = pl.Trainer(
+            gpus=params.trainer.gpus,
+            callbacks=[CustomWriter(params.trainer)]
+        )
 
         # predicting
+        dm.setup()
         trainer.predict(
             model=model,
-            datamodule=dm
+            datamodule=dm,
+
         )
 
 

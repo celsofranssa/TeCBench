@@ -1,4 +1,5 @@
 import json
+import pickle
 
 import torch
 from torch.utils.data import Dataset
@@ -8,22 +9,17 @@ class TeCDataset(Dataset):
     """MNIST Dataset.
     """
 
-    def __init__(self, dataset_path, tokenizer, max_length):
+    def __init__(self, dataset_path, ids_path, tokenizer, max_length):
         super(TeCDataset, self).__init__()
-        self.samples = []
         self.tokenizer = tokenizer
-        self.max_length=max_length
-        self._init_dataset(dataset_path)
+        self.max_length = max_length
+        self._init_dataset(dataset_path,ids_path)
 
-    def _init_dataset(self, dataset_path):
-        with open(dataset_path, "r") as dataset_file:
-            for line in dataset_file:
-                sample = json.loads(line)
-                self.samples.append({
-                    "idx": sample["idx"],
-                    "text": sample["text"],
-                    "cls": sample["cls"]
-                })
+    def _init_dataset(self, dataset_path, ids_path):
+        with open(dataset_path, "rb") as dataset_file:
+            self.samples = pickle.load(dataset_file)
+        with open(ids_path, "rb") as ids_file:
+            self.ids = pickle.load(ids_file)
 
     def _encode(self, sample):
         return {
@@ -36,7 +32,10 @@ class TeCDataset(Dataset):
         }
 
     def __len__(self):
-        return len(self.samples)
+        return len(self.ids)
 
     def __getitem__(self, idx):
-        return self._encode(self.samples[idx])
+        sample_id = self.ids[idx]
+        return self._encode(
+            self.samples[sample_id]
+        )
