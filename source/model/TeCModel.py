@@ -73,25 +73,25 @@ class TecModel(pl.LightningModule):
         rpr = self.encoder(text)
         pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
 
-        self.write_prediction_dict(
-            {
-                "idx": idx,
-                "rpr": rpr,
-                "true_cls": true_cls,
-                "pred_cls": pred_cls
-            },
-            self.hparams.prediction.dir + self.hparams.prediction.name)
-
-    def predict_step(self, batch, batch_idx, dataloader_idx=None):
-        idx, text, true_cls = batch["idx"], batch["text"], batch["cls"]
-        rpr = self.encoder(text)
-        pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
-
         return {
                 "idx": idx,
-                "rpr": rpr,
                 "true_cls": true_cls,
                 "pred_cls": pred_cls
+            }
+
+        # self.write_prediction_dict(
+        #     {
+        #         "idx": idx,
+        #         "true_cls": true_cls,
+        #         "pred_cls": pred_cls
+        #     },
+        #     self.hparams.prediction.dir + self.hparams.prediction.name)
+
+    def predict_step(self, batch, batch_idx, dataloader_idx=None):
+        idx, text = batch["idx"], batch["text"]
+        return {
+                "idx": idx,
+                "rpr": self.encoder(text)
             }
 
     def configure_optimizers(self):

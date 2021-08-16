@@ -49,7 +49,7 @@ class TeCDataModule(pl.LightningDataModule):
         if stage == 'predict':
             self.pred_dataset = TeCDataset(
                 samples=self.samples,
-                ids_path=os.path.join(self.params.dir, f"fold_{self.fold}/predict.pkl"),
+                ids_path=os.path.join(self.params.dir, f"fold_{self.fold}/pred.pkl"),
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
 

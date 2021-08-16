@@ -90,12 +90,16 @@ def test(params):
             checkpoint_path=f"{params.model_checkpoint.dir}{params.model.name}_{params.data.name}_{fold}.ckpt"
         )
 
-        model.hparams.prediction.name = f"{params.model.name}_{params.data.name}_{fold}.prd"
+        params.prediction.name = f"{params.model.name}_{params.data.name}_{fold}.prd"
 
         # trainer
-        trainer = pl.Trainer(gpus=params.trainer.gpus)
+        trainer = pl.Trainer(
+            gpus=params.trainer.gpus,
+            callbacks=[PredictionWriter(params.prediction)]
+        )
 
         # testing
+        dm.prepare_data()
         dm.setup('test')
         trainer.test(
             model=model,
@@ -124,16 +128,17 @@ def predict(params):
             checkpoint_path=f"{params.model_checkpoint.dir}{params.model.name}_{params.data.name}_{fold}.ckpt"
         )
 
-        model.hparams.representation.name = f"{params.model.name}_{params.data.name}_{fold}.rep"
+        params.representation.name = f"{params.model.name}_{params.data.name}_{fold}.rpr"
 
         # trainer
         trainer = pl.Trainer(
             gpus=params.trainer.gpus,
-            callbacks=[PredictionWriter(params.trainer)]
+            callbacks=[PredictionWriter(params.representation)]
         )
 
         # predicting
-        dm.setup()
+        dm.prepare_data()
+        dm.setup("predict")
         trainer.predict(
             model=model,
             datamodule=dm,
@@ -145,7 +150,7 @@ def predict(params):
 def perform_tasks(params):
     os.chdir(hydra.utils.get_original_cwd())
     OmegaConf.resolve(params)
-    if "train" in params.tasks:
+    if "fit" in params.tasks:
         train(params)
     if "test" in params.tasks:
         test(params)

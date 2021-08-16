@@ -9,10 +9,21 @@ log:
 model_checkpoint:
   dir: resource/model_checkpoint/
 
+representation:
+  dir: resource/representation/
+  name: ${model.name}_${data.name}.rpr
+  write_interval: epoch
+
+prediction:
+  dir: resource/prediction/
+  name: ${model.name}_${data.name}.prd
+  write_interval: epoch
+
 stat:
   dir: resource/stat/
 
-tasks: [ "train" ]
+
+tasks: [ "predict" ]
 
 trainer:
   max_epochs: 16
@@ -22,5 +33,3 @@ trainer:
   precision: 16
   fast_dev_run: False
   progress_bar_refresh_rate: 1
-  output_dir: resource/representation/
-  write_interval: epoch
