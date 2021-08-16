@@ -9,15 +9,14 @@ class TeCDataset(Dataset):
     """MNIST Dataset.
     """
 
-    def __init__(self, dataset_path, ids_path, tokenizer, max_length):
+    def __init__(self, samples, ids_path, tokenizer, max_length):
         super(TeCDataset, self).__init__()
+        self.samples = samples
         self.tokenizer = tokenizer
         self.max_length = max_length
-        self._init_dataset(dataset_path,ids_path)
+        self._load_ids(ids_path)
 
-    def _init_dataset(self, dataset_path, ids_path):
-        with open(dataset_path, "rb") as dataset_file:
-            self.samples = pickle.load(dataset_file)
+    def _load_ids(self, ids_path):
         with open(ids_path, "rb") as ids_file:
             self.ids = pickle.load(ids_file)
 

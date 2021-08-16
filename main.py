@@ -8,7 +8,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
 from transformers import AutoTokenizer
 
-from source.callback.dd import CustomWriter
+from source.callback.PredictionWriter import PredictionWriter
 from source.datamodule.TecDataModule import TeCDataModule
 from source.helper.EvalHelper import EvalHelper
 from source.model.TeCModel import TecModel
@@ -65,7 +65,7 @@ def train(params):
             logger=get_logger(params, fold),
             callbacks=[
                 get_model_checkpoint_callback(params, fold),  # checkpoint_callback
-                # get_early_stopping_callback(params),  # early_stopping_callback
+                get_early_stopping_callback(params),  # early_stopping_callback
             ]
         )
         # Train the ⚡ model
@@ -129,7 +129,7 @@ def predict(params):
         # trainer
         trainer = pl.Trainer(
             gpus=params.trainer.gpus,
-            callbacks=[CustomWriter(params.trainer)]
+            callbacks=[PredictionWriter(params.trainer)]
         )
 
         # predicting

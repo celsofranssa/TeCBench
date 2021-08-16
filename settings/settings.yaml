@@ -12,7 +12,7 @@ model_checkpoint:
 stat:
   dir: resource/stat/
 
-tasks: [ "predict" ]
+tasks: [ "train" ]
 
 trainer:
   max_epochs: 16

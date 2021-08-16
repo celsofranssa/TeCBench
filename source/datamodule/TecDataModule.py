@@ -1,4 +1,5 @@
 import os.path
+import pickle
 
 import pytorch_lightning as pl
 
@@ -16,20 +17,21 @@ class TeCDataModule(pl.LightningDataModule):
         self.fold = fold
 
     def prepare_data(self):
-        pass
+        with open(self.params.dir+f"samples.pkl", "rb") as dataset_file:
+            self.samples = pickle.load(dataset_file)
 
     def setup(self, stage=None):
 
-        if stage == 'train' or stage is None:
+        if stage == 'fit' or stage is None:
             self.train_dataset = TeCDataset(
-                dataset_path=self.params.dataset_path,
-                ids_path=self.params.dir + f"fold_{self.fold}/predict.pkl",
+                samples=self.samples,
+                ids_path=self.params.dir + f"fold_{self.fold}/train.pkl",
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
             )
 
             self.val_dataset = TeCDataset(
-                dataset_path=self.params.dataset_path,
+                samples=self.samples,
                 ids_path=self.params.dir + f"fold_{self.fold}/val.pkl",
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
@@ -37,16 +39,16 @@ class TeCDataModule(pl.LightningDataModule):
 
         if stage == 'test':
             self.test_dataset = TeCDataset(
-                dataset_path=self.params.dataset_path,
+                samples=self.samples,
                 ids_path=self.params.dir + f"fold_{self.fold}/test.pkl",
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
 
             )
 
-        if stage == 'predict' or stage is None:
+        if stage == 'predict':
             self.pred_dataset = TeCDataset(
-                dataset_path=os.path.join(self.params.dir, "samples.pkl"),
+                samples=self.samples,
                 ids_path=os.path.join(self.params.dir, f"fold_{self.fold}/predict.pkl"),
                 tokenizer=self.tokenizer,
                 max_length=self.params.max_length
