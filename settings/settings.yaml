@@ -23,7 +23,7 @@ stat:
   dir: resource/stat/
 
 
-tasks: [ "predict" ]
+tasks: [ "fit" ]
 
 trainer:
   max_epochs: 16
