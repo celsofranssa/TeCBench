@@ -17,7 +17,7 @@ class EvalHelper:
 
     def load_predictions(self, fold):
         # load predictions
-        return torch.load(self.params.model.prediction.dir +
+        return torch.load(self.params.prediction.dir +
                           f"{self.params.model.name}_{self.params.data.name}_{fold}.prd")
 
 

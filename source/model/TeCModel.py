@@ -1,8 +1,11 @@
+import json
+
 import pytorch_lightning as pl
 import torch
 from hydra.utils import instantiate
-from torch import nn
+from torch import nn, Tensor
 from torchmetrics import MetricCollection, F1
+
 
 
 class TecModel(pl.LightningModule):
@@ -19,12 +22,13 @@ class TecModel(pl.LightningModule):
             torch.nn.LogSoftmax(dim=-1)
         )
 
-        self.train_metrics = self.get_metrics(prefix="train_")
-        self.val_metrics = self.get_metrics(prefix="val_")
+        self.train_metrics = self._get_metrics(prefix="train_")
+        self.val_metrics = self._get_metrics(prefix="val_")
+        self.test_metrics = self._get_metrics(prefix="test_")
 
         self.loss = nn.NLLLoss()
 
-    def get_metrics(self, prefix):
+    def _get_metrics(self, prefix):
         return MetricCollection(
             metrics={
                 "Mic-F1": F1(num_classes=self.hparams.num_classes, average="micro"),
@@ -73,19 +77,19 @@ class TecModel(pl.LightningModule):
         rpr = self.encoder(text)
         pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
 
-        return {
-                "idx": idx,
-                "true_cls": true_cls,
-                "pred_cls": pred_cls
-            }
+        # log test metrics
+        self.log_dict(self.test_metrics(pred_cls, true_cls), prog_bar=True)
 
-        # self.write_prediction_dict(
-        #     {
-        #         "idx": idx,
-        #         "true_cls": true_cls,
-        #         "pred_cls": pred_cls
-        #     },
-        #     self.hparams.prediction.dir + self.hparams.prediction.name)
+    def test_epoch_end(self, outs):
+        test_result = self.test_metrics.compute()
+        self._checkpoint_test_result(
+            test_result,
+            self.hparams.stat.dir+self.hparams.stat.name)
+
+    def _checkpoint_test_result(self, test_result, test_result_path):
+        test_result = {k: v.tolist() for k, v in test_result.items()}
+        with open(test_result_path, "w") as test_results_file:
+            test_results_file.write(json.dumps(test_result))
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
         idx, text = batch["idx"], batch["text"]

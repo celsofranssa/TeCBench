@@ -6,7 +6,7 @@ from torch.utils.data import Dataset
 
 
 class TeCDataset(Dataset):
-    """MNIST Dataset.
+    """Text Classification Dataset.
     """
 
     def __init__(self, samples, ids_path, tokenizer, max_length):

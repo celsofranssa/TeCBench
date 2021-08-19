@@ -34,7 +34,7 @@ def get_model_checkpoint_callback(params, fold):
 
 def get_early_stopping_callback(params):
     return EarlyStopping(
-        monitor='val_Mic-F1',
+        monitor='val_Wei-F1',
         patience=params.trainer.patience,
         min_delta=params.trainer.min_delta,
         mode='max'
@@ -50,11 +50,13 @@ def get_tokenizer(hparams):
     return tokenizer
 
 
-def train(params):
+def fit(params):
 
     for fold in params.data.folds:
+
         print(f"Fitting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
               f"{OmegaConf.to_yaml(params)}\n")
+
         # Initialize a trainer
         trainer = pl.Trainer(
             fast_dev_run=params.trainer.fast_dev_run,
@@ -81,47 +83,33 @@ def test(params):
         print(f"Predicting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
               f"{OmegaConf.to_yaml(params)}\n")
 
-
-        # data
-        dm = TeCDataModule(params.data, get_tokenizer(params.model), fold=fold)
-
-        # model
+        # load model checkpoint
         model = TecModel.load_from_checkpoint(
             checkpoint_path=f"{params.model_checkpoint.dir}{params.model.name}_{params.data.name}_{fold}.ckpt"
         )
 
-        params.prediction.name = f"{params.model.name}_{params.data.name}_{fold}.prd"
+        model.hparams.stat.name = f"{params.model.name}_{params.data.name}_{fold}.stat"
 
         # trainer
         trainer = pl.Trainer(
-            gpus=params.trainer.gpus,
-            callbacks=[PredictionWriter(params.prediction)]
+            gpus=params.trainer.gpus
         )
 
         # testing
-        dm.prepare_data()
-        dm.setup('test')
         trainer.test(
             model=model,
-            datamodule=dm
+            datamodule=TeCDataModule(params.data, get_tokenizer(params.model), fold=fold)
         )
 
-
-def eval(params):
-    print(f"Evaluating {params.model.name} over {params.data.name} with fowling params\n"
-          f"{OmegaConf.to_yaml(params)}\n")
-    evaluator = EvalHelper(params)
-    evaluator.perform_eval()
-
 def predict(params):
-
     for fold in params.data.folds:
         print(f"Predicting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
               f"{OmegaConf.to_yaml(params)}\n")
 
-
         # data
         dm = TeCDataModule(params.data, get_tokenizer(params.model), fold=fold)
+        dm.prepare_data()
+        dm.setup("predict")
 
         # model
         model = TecModel.load_from_checkpoint(
@@ -136,9 +124,6 @@ def predict(params):
             callbacks=[PredictionWriter(params.representation)]
         )
 
-        # predicting
-        dm.prepare_data()
-        dm.setup("predict")
         trainer.predict(
             model=model,
             datamodule=dm,
@@ -151,11 +136,9 @@ def perform_tasks(params):
     os.chdir(hydra.utils.get_original_cwd())
     OmegaConf.resolve(params)
     if "fit" in params.tasks:
-        train(params)
+        fit(params)
     if "test" in params.tasks:
         test(params)
-    if "eval" in params.tasks:
-        eval(params)
     if "predict" in params.tasks:
         predict(params)
 

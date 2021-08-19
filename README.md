@@ -41,41 +41,73 @@ Make sure that after completing the download of the datasets the file structure 
 
 ```shell script
 TeCBench/
+├── LICENSE
 ├── main.py
+├── README.md
 ├── requirements.txt
 ├── resource
-│   ...
 │   ├── dataset
 │   │   ├── 20ng
-│   │   │   ├── fold_1
-│   │   │   │   ├── test.jsonl
-│   │   │   │   ├── train.jsonl
-│   │   │   │   └── val.jsonl
-│   │   │   ...
-│   │   │   └── fold_9
-│   │   │       ├── test.jsonl
-│   │   │       ├── train.jsonl
-│   │   │       └── val.jsonl
-|   |   ...
-│   │   ├── yelp_2015
-│   │   │   ├── fold_1
-│   │   │   │   ├── test.jsonl
-│   │   │   │   ├── train.jsonl
-│   │   │   │   └── val.jsonl
-|   |   |   ...
-│   │   │   └── fold_5
-│   │   │       ├── test.jsonl
-│   │   │       ├── train.jsonl
-│   │   │       └── val.jsonl
+│   │   │   ├── fold_0
+│   │   │   │   ├── test.pkl
+│   │   │   │   ├── train.pkl
+│   │   │   │   └── val.pkl
+
+        ...     
+
+│   │   │   ├── fold_9
+│   │   │   │   ├── test.pkl
+│   │   │   │   ├── train.pkl
+│   │   │   │   └── val.pkl
+│   │   │   └── samples.pkl
+
+        ..
+
+│   │   └── yelp_2015
+│   │       ├── fold_0
+│   │       │   ├── test.pkl
+│   │       │   ├── train.pkl
+│   │       │   └── val.pkl
+
+        ...
+
+│   │       ├── fold_4
+│   │       │   ├── test.pkl
+│   │       │   ├── train.pkl
+│   │       │   └── val.pkl
+│   │       └── samples.pkl
 │   ├── log
 │   ├── model_checkpoint
 │   ├── prediction
+│   ├── representation
 │   └── stat
 ├── settings
-│   ...
+│   ├── data
+│   │   ├── 20NG.yaml
+│   │   └── YELP.yaml
+│   ├── model
+│   │   └── BERT_NO_POOL.yaml
 │   └── settings.yaml
 └── source
-    ...
+    ├── callback
+    │   └── PredictionWriter.py
+    ├── datamodule
+    │   └── TecDataModule.py
+    ├── dataset
+    │   └── TeCDataset.py
+    ├── encoder
+    │   └── BertEncoder.py
+    ├── helper
+    │   └── EvalHelper.py
+    ├── metric
+    │   └── F1.py
+    ├── model
+    │   └── TeCModel.py
+    └── pooling
+        ├── AttentivePooling.py
+        ├── AveragePooling.py
+        ├── MaxPooling.py
+        └── NoPooling.py
 ```
 
 
