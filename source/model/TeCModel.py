@@ -92,10 +92,15 @@ class TecModel(pl.LightningModule):
             test_results_file.write(json.dumps(test_result))
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
-        idx, text = batch["idx"], batch["text"]
+        idx, text, true_class = batch["idx"], batch["text"], batch["cls"]
+        rpr = self.encoder(text)
+        pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
+
         return {
                 "idx": idx,
-                "rpr": self.encoder(text)
+                "rpr": rpr,
+                "true_class": true_class,
+                "pred_class": pred_cls
             }
 
     def configure_optimizers(self):
