@@ -32,6 +32,7 @@ class TecModel(pl.LightningModule):
         return MetricCollection(
             metrics={
                 "Mic-F1": F1(num_classes=self.hparams.num_classes, average="micro"),
+                "Mac-F1": F1(num_classes=self.hparams.num_classes, average="macro"),
                 "Wei-F1": F1(num_classes=self.hparams.num_classes, average="weighted")
             },
             prefix=prefix)

@@ -130,6 +130,27 @@ def predict(params):
 
         )
 
+def z_shot_cls(params):
+
+    for fold in params.data.folds:
+        print(f"Predicting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
+              f"{OmegaConf.to_yaml(params)}\n")
+
+        model = TecModel(params.model)
+
+        model.hparams.stat.name = f"{params.model.name}_{params.data.name}_{fold}.stat"
+
+        # trainer
+        trainer = pl.Trainer(
+            gpus=params.trainer.gpus
+        )
+
+        # testing
+        trainer.test(
+            model=model,
+            datamodule=TeCDataModule(params.data, get_tokenizer(params.model), fold=fold)
+        )
+
 
 @hydra.main(config_path="settings/", config_name="settings.yaml")
 def perform_tasks(params):
@@ -141,6 +162,8 @@ def perform_tasks(params):
         test(params)
     if "predict" in params.tasks:
         predict(params)
+    if "z-shot-cls":
+        z_shot_cls(params)
 
 
 if __name__ == '__main__':
