@@ -23,7 +23,7 @@ def get_logger(params, fold):
 
 def get_model_checkpoint_callback(params, fold):
     return ModelCheckpoint(
-        monitor="val_Mic-F1",
+        monitor="val_Wei-F1",
         dirpath=params.model_checkpoint.dir,
         filename=f"{params.model.name}_{params.data.name}_{fold}",
         save_top_k=1,
@@ -51,9 +51,7 @@ def get_tokenizer(hparams):
 
 
 def fit(params):
-
     for fold in params.data.folds:
-
         print(f"Fitting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
               f"{OmegaConf.to_yaml(params)}\n")
 
@@ -78,9 +76,8 @@ def fit(params):
 
 
 def test(params):
-
     for fold in params.data.folds:
-        print(f"Predicting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
+        print(f"Testing {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
               f"{OmegaConf.to_yaml(params)}\n")
 
         # load model checkpoint
@@ -100,6 +97,7 @@ def test(params):
             model=model,
             datamodule=TeCDataModule(params.data, get_tokenizer(params.model), fold=fold)
         )
+
 
 def predict(params):
     for fold in params.data.folds:
@@ -130,8 +128,8 @@ def predict(params):
 
         )
 
-def z_shot_cls(params):
 
+def z_shot_cls(params):
     for fold in params.data.folds:
         print(f"Predicting {params.model.name} over {params.data.name} (fold {fold}) with fowling params\n"
               f"{OmegaConf.to_yaml(params)}\n")
@@ -162,7 +160,7 @@ def perform_tasks(params):
         test(params)
     if "predict" in params.tasks:
         predict(params)
-    if "z-shot-cls":
+    if "z-shot-cls" in params.tasks:
         z_shot_cls(params)
 
 

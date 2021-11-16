@@ -22,7 +22,7 @@ trainer:
   max_epochs: 16
   gpus: 1
   patience: 7
-  min_delta: 0.05
+  min_delta: 0.01
   precision: 16
   fast_dev_run: False
   progress_bar_refresh_rate: 1

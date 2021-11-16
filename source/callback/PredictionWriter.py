@@ -9,17 +9,17 @@ class PredictionWriter(BasePredictionWriter):
 
     def __init__(self, params):
         super(PredictionWriter, self).__init__(params.write_interval)
-        self.params=params
+        self.params = params
         self.predictions = []
 
     def write_on_batch_end(
-        self, trainer, pl_module, prediction: Any, batch_indices: List[int], batch: Any,
-        batch_idx: int, dataloader_idx: int
+            self, trainer, pl_module, prediction: Any, batch_indices: List[int], batch: Any,
+            batch_idx: int, dataloader_idx: int
     ):
         torch.save(prediction, self.params.output_dir + dataloader_idx + f"{batch_idx}.pt")
 
     def write_on_epoch_end(
-        self, trainer, pl_module, dataloaders: List[Any], batch_indices: List[Any]
+            self, trainer, pl_module, dataloaders: List[Any], batch_indices: List[Any]
     ):
         for dataloader in dataloaders:
             for batch in dataloader:
@@ -34,15 +34,9 @@ class PredictionWriter(BasePredictionWriter):
 
         self._checkpoint()
 
-
     def _checkpoint(self):
         # Write predictions for current file to disk
         torch.save(self.predictions, f"{self.params.dir}{self.params.name}")
-
-
-
-
-
 
     # def to_disk(self) -> None:
     #     """Write predictions to file(s)."""

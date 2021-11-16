@@ -1,4 +1,4 @@
-name: BERT_NO_POOL
+name: BERT
 
 encoder:
   _target_: source.encoder.BertEncoder.BertEncoder

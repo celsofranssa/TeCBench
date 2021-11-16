@@ -62,6 +62,7 @@ class TecModel(pl.LightningModule):
         pred_cls = self.cls_head(
             self(text)
         )
+
         val_loss = self.loss(pred_cls, true_cls)
 
         # log val loss

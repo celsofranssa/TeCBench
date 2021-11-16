@@ -86,7 +86,7 @@ TeCBench/
 │   │   ├── 20NG.yaml
 │   │   └── YELP.yaml
 │   ├── model
-│   │   └── BERT_NO_POOL.yaml
+│   │   └── BERT.yaml
 │   └── settings.yaml
 └── source
     ├── callback
