@@ -21,6 +21,11 @@ dropout: 0.1
 tokenizer:
   architecture: ${model.encoder.architecture}
 
+loss:
+  _target_: source.loss.CrossEntropyLoss.CrossEntropyLoss
+  params:
+    name: CrossEntropyLoss
+
 stat:
   dir: resource/stat/
   name: ${model.name}_${data.name}.stat

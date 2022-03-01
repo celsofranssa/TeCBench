@@ -7,25 +7,28 @@ from torch import nn, Tensor
 from torchmetrics import MetricCollection, F1
 
 
-
 class TecModel(pl.LightningModule):
 
     def __init__(self, hparams):
         super(TecModel, self).__init__()
         self.save_hyperparameters(hparams)
 
+        # encoder layer
         self.encoder = instantiate(hparams.encoder)
 
+        # the classification head
         self.cls_head = torch.nn.Sequential(
             torch.nn.Dropout(hparams.dropout),
             torch.nn.Linear(hparams.hidden_size, hparams.num_classes),
-            torch.nn.LogSoftmax(dim=-1)
+            torch.nn.Softmax(dim=-1)
         )
 
+        # validation and test metrics
         self.val_metrics = self._get_metrics(prefix="val_")
         self.test_metrics = self._get_metrics(prefix="test_")
 
-        self.loss = nn.NLLLoss()
+        # loss
+        self.loss = instantiate(hparams.loss)
 
     def _get_metrics(self, prefix):
         return MetricCollection(
@@ -49,19 +52,13 @@ class TecModel(pl.LightningModule):
         # log training loss
         self.log('train_loss', train_loss)
 
-        self.log_dict(self.train_metrics(pred_cls, true_cls), prog_bar=True)
-
         return train_loss
-
-    def training_epoch_end(self, outs):
-        self.train_metrics.compute()
 
     def validation_step(self, batch, batch_idx):
         text, true_cls = batch["text"], batch["cls"]
         pred_cls = self.cls_head(
             self(text)
         )
-
 
         val_loss = self.loss(pred_cls, true_cls)
 
@@ -86,7 +83,7 @@ class TecModel(pl.LightningModule):
         test_result = self.test_metrics.compute()
         self._checkpoint_test_result(
             test_result,
-            self.hparams.stat.dir+self.hparams.stat.name)
+            self.hparams.stat.dir + self.hparams.stat.name)
 
     def _checkpoint_test_result(self, test_result, test_result_path):
         test_result = {k: v.tolist() for k, v in test_result.items()}
@@ -96,14 +93,13 @@ class TecModel(pl.LightningModule):
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
         idx, text, true_class = batch["idx"], batch["text"], batch["cls"]
         rpr = self.encoder(text)
-        pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
 
         return {
-                "idx": idx,
-                "rpr": rpr,
-                "true_class": true_class,
-                "pred_class": pred_cls
-            }
+            "idx": idx,
+            "rpr": rpr,
+            "true_class": true_class,
+            "pred_class": torch.argmax(self.cls_head(rpr), dim=-1)
+        }
 
     def configure_optimizers(self):
         # optimizer
