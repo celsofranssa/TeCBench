@@ -1,8 +1,12 @@
 import json
+import pickle
+from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import torch
 from sklearn.metrics import f1_score
+from tqdm import tqdm
 
 
 class EvalHelper:
@@ -10,38 +14,39 @@ class EvalHelper:
         self.params = params
 
     def checkpoint_stats(self, stats):
-        stats_path = f"{self.params.stat.dir}{self.params.model.name}_{self.params.data.name}.stat"
-        with open(stats_path, "w") as stats_file:
-            for data in stats.items():
-                stats_file.write(f"{json.dumps(data)}\n")
+        """
+        Checkpoints stats on disk.
+        :param stats: dataframe
+        """
+        stats.to_csv(
+            self.params.stat.dir + self.params.model.name + "_" + self.params.data.name + ".stat",
+            sep='\t', index=False, header=True)
+
+    def _load_ids(self, ids_path):
+        with open(ids_path, "rb") as ids_file:
+            return pickle.load(ids_file)
 
     def load_predictions(self, fold):
-        # load predictions
-        return torch.load(self.params.prediction.dir +
-                          f"{self.params.model.name}_{self.params.data.name}_{fold}.prd")
 
+        predictions_paths = sorted(
+            Path(f"{self.params.prediction.dir}fold_{fold}/").glob("*.prd")
+        )
 
-    def summarize_stats(self, stats):
-        mic_f1s = []
-        mac_f1s = []
-        wei_f1s = []
+        test_ids = self._load_ids(
+            f"{self.params.data.dir}fold_{fold}/test.pkl"
+        )
 
-        for fold in stats.keys():
-            mic_f1s.append(stats[fold]["Mic-F1"])
-            mac_f1s.append(stats[fold]["Mac-F1"])
-            wei_f1s.append(stats[fold]["Wei-F1"])
+        predictions = []
+        for path in tqdm(predictions_paths, desc="Loading predictions"):
+            predictions.extend( # only eval over test split
+                filter(lambda prediction: prediction["idx"] in test_ids, torch.load(path))
+            )
 
-        stats["Avg-Mic-F1"] = np.average(mic_f1s)
-        stats["Avg-Mac-F1"] = np.average(mac_f1s)
-        stats["Avg-Wei-F1"] = np.average(wei_f1s)
-        stats["Std-Mic-F1"] = np.std(mic_f1s)
-        stats["Std-Mac-F1"] = np.std(mic_f1s)
-        stats["Std-Wei-F1"] = np.std(wei_f1s)
+        return predictions
 
-        return stats
+    def perform_eval(self):
+        stats = pd.DataFrame(columns=["fold"])
 
-    def compute_stats(self):
-        stats = {}
         for fold in self.params.data.folds:
             true_classes = []
             pred_classes = []
@@ -49,16 +54,11 @@ class EvalHelper:
             for prediction in predictions:
                 true_classes.append(prediction["true_cls"])
                 pred_classes.append(prediction["pred_cls"])
+            stats.at[fold, "Mic-F1"] = f1_score(true_classes, pred_classes, average='micro')
+            stats.at[fold, "Mac-F1"] = f1_score(true_classes, pred_classes, average='macro')
+            stats.at[fold, "Wei-F1"] = f1_score(true_classes, pred_classes, average='weighted')
 
+        # update fold colum
+        stats["fold"] = stats.index
 
-            stats[fold] = {
-                "Mic-F1": f1_score(true_classes, pred_classes, average='micro'),
-                "Mac-F1": f1_score(true_classes, pred_classes, average='macro'),
-                "Wei-F1": f1_score(true_classes, pred_classes, average='weighted')
-            }
-        return self.summarize_stats(stats)
-
-    def perform_eval(self):
-
-        stats = self.compute_stats()
         self.checkpoint_stats(stats)
