@@ -1,4 +1,3 @@
-import os.path
 import pickle
 
 import pytorch_lightning as pl
@@ -24,19 +23,7 @@ class TeCDataModule(pl.LightningDataModule):
                 self.samples.append(self._encode(sample))
 
     def _encode(self, sample):
-
-        if self.params.encoding is "generative":
-            sample["text"] = f"<|startoftext|>Text: {sample['text']}\nClass: {sample['cls']}<|endoftext|>"
-            return {
-                "idx": sample["idx"],
-                "text": torch.tensor(
-                    self.tokenizer.encode(text=sample["text"], max_length=self.params.max_length, padding="max_length",
-                                          truncation=True)
-                ),
-                "cls": sample["cls"]
-            }
-        elif self.params.encoding is "discriminative":
-            return {
+        return {
                 "idx": sample["idx"],
                 "text": torch.tensor(
                     self.tokenizer.encode(text=sample["text"], max_length=self.params.max_length, padding="max_length",
