@@ -4,7 +4,7 @@ pytorch-lightning~=1.4.1
 pytorch-lightning-bolts
 scikit-learn~=0.24.2
 transformers~=4.9.1
-torch~=1.10.2+cu113
+torch~=1.10.2
 torchmetrics~=0.4.1
 kaggle~=1.5.12
 numpy~=1.21.2

@@ -7,10 +7,10 @@ from torch import nn, Tensor
 from torchmetrics import MetricCollection, F1
 
 
-class TecModel(pl.LightningModule):
+class TeCModel(pl.LightningModule):
 
     def __init__(self, hparams):
-        super(TecModel, self).__init__()
+        super(TeCModel, self).__init__()
         self.save_hyperparameters(hparams)
 
         # encoder layer
