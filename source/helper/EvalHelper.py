@@ -23,15 +23,19 @@ class EvalHelper:
 
     def summarize_stats(self, stats):
         mic_f1s = []
+        mac_f1s = []
         wei_f1s = []
 
         for fold in stats.keys():
             mic_f1s.append(stats[fold]["Mic-F1"])
+            mac_f1s.append(stats[fold]["Mac-F1"])
             wei_f1s.append(stats[fold]["Wei-F1"])
 
         stats["Avg-Mic-F1"] = np.average(mic_f1s)
+        stats["Avg-Mac-F1"] = np.average(mac_f1s)
         stats["Avg-Wei-F1"] = np.average(wei_f1s)
         stats["Std-Mic-F1"] = np.std(mic_f1s)
+        stats["Std-Mac-F1"] = np.std(mic_f1s)
         stats["Std-Wei-F1"] = np.std(wei_f1s)
 
         return stats
@@ -49,6 +53,7 @@ class EvalHelper:
 
             stats[fold] = {
                 "Mic-F1": f1_score(true_classes, pred_classes, average='micro'),
+                "Mac-F1": f1_score(true_classes, pred_classes, average='macro'),
                 "Wei-F1": f1_score(true_classes, pred_classes, average='weighted')
             }
         return self.summarize_stats(stats)

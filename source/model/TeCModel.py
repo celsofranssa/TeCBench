@@ -22,7 +22,6 @@ class TecModel(pl.LightningModule):
             torch.nn.LogSoftmax(dim=-1)
         )
 
-        self.train_metrics = self._get_metrics(prefix="train_")
         self.val_metrics = self._get_metrics(prefix="val_")
         self.test_metrics = self._get_metrics(prefix="test_")
 
@@ -62,6 +61,7 @@ class TecModel(pl.LightningModule):
         pred_cls = self.cls_head(
             self(text)
         )
+
 
         val_loss = self.loss(pred_cls, true_cls)
 
