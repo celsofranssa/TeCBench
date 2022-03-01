@@ -1,10 +1,8 @@
 import pickle
 
 import pytorch_lightning as pl
-import torch
 
 from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 from source.dataset.TeCDataset import TeCDataset
 
@@ -15,22 +13,10 @@ class TeCDataModule(pl.LightningDataModule):
         self.params = params
         self.tokenizer = tokenizer
         self.fold = fold
-        self.samples = []
 
     def prepare_data(self):
         with open(self.params.dir + f"samples.pkl", "rb") as dataset_file:
-            for sample in tqdm(pickle.load(dataset_file), desc="Encoding dataset"):
-                self.samples.append(self._encode(sample))
-
-    def _encode(self, sample):
-        return {
-                "idx": sample["idx"],
-                "text": torch.tensor(
-                    self.tokenizer.encode(text=sample["text"], max_length=self.params.max_length, padding="max_length",
-                                          truncation=True)
-                ),
-                "cls": sample["cls"]
-            }
+            self.samples = pickle.load(dataset_file)
 
     def setup(self, stage=None):
 

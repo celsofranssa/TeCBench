@@ -22,9 +22,9 @@ tokenizer:
   architecture: ${model.encoder.architecture}
 
 loss:
-  _target_: source.loss.CrossEntropyLoss.CrossEntropyLoss
+  _target_: source.loss.NLLLoss.NLLLoss
   params:
-    name: CrossEntropyLoss
+    name: NLLLoss
 
 stat:
   dir: resource/stat/

@@ -25,19 +25,19 @@ class PredictionWriter(BasePredictionWriter):
         for idx, rpr, true_class, pred_class in zip(
                 prediction["idx"].tolist(),
                 prediction["rpr"].tolist(),
-                prediction["true_class"].tolist(),
-                prediction["pred_class"].tolist()):
+                prediction["true_cls"].tolist(),
+                prediction["pred_cls"].tolist()):
             predictions.append({
                 "idx": idx,
                 "rpr": rpr,
-                "pred_class": pred_class,
-                "true_class": true_class
+                "pred_cls": pred_class,
+                "true_cls": true_class
             })
 
         self._checkpoint(predictions, dataloader_idx, batch_idx)
 
     def _checkpoint(self, predictions, dataloader_idx, batch_idx):
-        checkpoint_dir = f"{self.params.dir}fold_{self.params.fold}/"
+        checkpoint_dir = f"{self.params.dir}fold_{self.params.fold_id}/"
         Path(checkpoint_dir).mkdir(parents=True, exist_ok=True)
         torch.save(
             predictions,

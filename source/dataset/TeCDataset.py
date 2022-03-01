@@ -1,4 +1,4 @@
-import json
+
 import pickle
 
 import torch
@@ -20,10 +20,21 @@ class TeCDataset(Dataset):
         with open(ids_path, "rb") as ids_file:
             self.ids = pickle.load(ids_file)
 
+    def _encode(self, sample):
+        return {
+            "idx": sample["idx"],
+            "text": torch.tensor(
+                self.tokenizer.encode(text=sample["text"], max_length=self.max_length, padding="max_length",
+                                      truncation=True)
+            ),
+            "cls": sample["cls"]
+        }
+
     def __len__(self):
         return len(self.ids)
 
     def __getitem__(self, idx):
-        return self.samples[
-            self.ids[idx]
-        ]
+        sample_idx = self.ids[idx]
+        return self._encode(
+            self.samples[sample_idx]
+        )

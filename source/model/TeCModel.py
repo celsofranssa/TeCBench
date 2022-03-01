@@ -5,6 +5,7 @@ import torch
 from hydra.utils import instantiate
 from torch import nn, Tensor
 from torchmetrics import MetricCollection, F1
+from transformers import get_scheduler
 
 
 class TeCModel(pl.LightningModule):
@@ -20,7 +21,7 @@ class TeCModel(pl.LightningModule):
         self.cls_head = torch.nn.Sequential(
             torch.nn.Dropout(hparams.dropout),
             torch.nn.Linear(hparams.hidden_size, hparams.num_classes),
-            torch.nn.Softmax(dim=-1)
+            torch.nn.LogSoftmax(dim=-1)
         )
 
         # validation and test metrics
@@ -59,7 +60,6 @@ class TeCModel(pl.LightningModule):
         pred_cls = self.cls_head(
             self(text)
         )
-
         val_loss = self.loss(pred_cls, true_cls)
 
         # log val loss
@@ -71,25 +71,6 @@ class TeCModel(pl.LightningModule):
     def validation_epoch_end(self, outs):
         self.val_metrics.compute()
 
-    def test_step(self, batch, batch_idx):
-        idx, text, true_cls = batch["idx"], batch["text"], batch["cls"]
-        rpr = self.encoder(text)
-        pred_cls = torch.argmax(self.cls_head(rpr), dim=-1)
-
-        # log test metrics
-        self.log_dict(self.test_metrics(pred_cls, true_cls), prog_bar=True)
-
-    def test_epoch_end(self, outs):
-        test_result = self.test_metrics.compute()
-        self._checkpoint_test_result(
-            test_result,
-            self.hparams.stat.dir + self.hparams.stat.name)
-
-    def _checkpoint_test_result(self, test_result, test_result_path):
-        test_result = {k: v.tolist() for k, v in test_result.items()}
-        with open(test_result_path, "w") as test_results_file:
-            test_results_file.write(json.dumps(test_result))
-
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
         idx, text, true_class = batch["idx"], batch["text"], batch["cls"]
         rpr = self.encoder(text)
@@ -97,8 +78,8 @@ class TeCModel(pl.LightningModule):
         return {
             "idx": idx,
             "rpr": rpr,
-            "true_class": true_class,
-            "pred_class": torch.argmax(self.cls_head(rpr), dim=-1)
+            "true_cls": true_class,
+            "pred_cls": torch.argmax(self.cls_head(rpr), dim=-1)
         }
 
     def configure_optimizers(self):
@@ -113,13 +94,19 @@ class TeCModel(pl.LightningModule):
 
         # scheduler
         step_size_up = round(0.03 * self.num_training_steps)
-        scheduler = torch.optim.lr_scheduler.CyclicLR(
-            optimizer,
-            mode='triangular2',
-            base_lr=self.hparams.base_lr,
-            max_lr=self.hparams.max_lr,
-            step_size_up=step_size_up,
-            cycle_momentum=False)
+        scheduler = get_scheduler(
+            "linear",
+            optimizer=optimizer,
+            num_warmup_steps=round(0.03 * self.num_training_steps),
+            num_training_steps=self.num_training_steps
+        )
+        # scheduler = torch.optim.lr_scheduler.CyclicLR(
+        #     optimizer,
+        #     mode='triangular2',
+        #     base_lr=self.hparams.base_lr,
+        #     max_lr=self.hparams.max_lr,
+        #     step_size_up=step_size_up,
+        #     cycle_momentum=False)
 
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 

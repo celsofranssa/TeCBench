@@ -1,5 +1,5 @@
 defaults:
-  - model: BERT_NO_POOL
+  - model: BERT
   - data: ACM
 
 log:
@@ -8,21 +8,21 @@ log:
 model_checkpoint:
   dir: resource/model_checkpoint/
 
-representation:
-  dir: resource/representation/
-  name: ${model.name}_${data.name}.rpr
-  write_interval: epoch
+prediction:
+  dir: resource/prediction/${model.name}_${data.name}/
+  fold_id: -1
+  write_interval: batch
 
 stat:
   dir: resource/stat/
 
-tasks: [ "fit" ]
+tasks: ["fit","predict", "eval"]
 
 trainer:
   max_epochs: 16
   gpus: 1
   patience: 7
   min_delta: 0.01
-  precision: 16
+  precision: 32
   fast_dev_run: False
   progress_bar_refresh_rate: 1

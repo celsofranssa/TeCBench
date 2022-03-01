@@ -4,7 +4,7 @@ dir: resource/dataset/agnews/
 
 folds: [0,1,2,3,4]
 
-max_length: 64
+max_length: 256
 
 num_classes: 4
 

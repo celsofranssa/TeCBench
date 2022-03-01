@@ -2,6 +2,7 @@ from omegaconf import OmegaConf
 import pytorch_lightning as pl
 from pytorch_lightning import loggers
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+from transformers import AutoTokenizer
 
 from source.datamodule.TecDataModule import TeCDataModule
 from source.model.TeCModel import TeCModel
@@ -29,9 +30,11 @@ class FitHelper:
             )
 
             # datamodule
-            self.params.data.fold_id = fold_id
             datamodule = TeCDataModule(
-                self.params.data)
+                params=self.params.data,
+                tokenizer=self.get_tokenizer(self.params.model.tokenizer),
+                fold=fold_id
+            )
 
             # model
             model = TeCModel(self.params.model)
@@ -54,7 +57,7 @@ class FitHelper:
 
     def get_model_checkpoint_callback(self, params, fold):
         return ModelCheckpoint(
-            monitor="val_Wei-F1",
+            monitor="val_Mac-F1",
             dirpath=params.model_checkpoint.dir,
             filename=f"{params.model.name}_{params.data.name}_{fold}",
             save_top_k=1,
@@ -64,8 +67,17 @@ class FitHelper:
 
     def get_early_stopping_callback(self, params):
         return EarlyStopping(
-            monitor="val_Wei-F1",
+            monitor="val_Mac-F1",
             patience=params.trainer.patience,
             min_delta=params.trainer.min_delta,
             mode='max'
         )
+
+    def get_tokenizer(self, params):
+        tokenizer = AutoTokenizer.from_pretrained(
+            params.architecture
+        )
+        if "gpt" in params.architecture:
+            tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+            params.pad = tokenizer.convert_tokens_to_ids("[PAD]")
+        return tokenizer

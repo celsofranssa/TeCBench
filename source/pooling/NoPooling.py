@@ -4,7 +4,7 @@ from pytorch_lightning import LightningModule
 
 class NoPooling(LightningModule):
     """
-    Performs average pooling on the last hidden-states transformer output.
+    Performs no pooling on the last hidden-states transformer output.
     """
 
     def __init__(self):
