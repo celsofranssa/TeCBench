@@ -7,4 +7,6 @@ python main.py \
   tasks=[fit,predict,eval] \
   model=BERT \
   data=WEBKB \
+  data.folds=[0,1,2] \
+  data.batch_size=64 \
   data.num_workers=12

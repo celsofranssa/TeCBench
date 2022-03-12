@@ -9,7 +9,7 @@ class NLLLoss(nn.Module):
         self.params = params
         self.criterion = nn.NLLLoss()
 
-    def forward(self, pred_cls, true_cls):
+    def forward(self, rpr, pred_cls, true_cls):
         """
         Computes the cross entropy loss between pred_cls and true_cls.
         """

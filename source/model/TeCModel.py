@@ -17,9 +17,11 @@ class TeCModel(pl.LightningModule):
         # encoder layer
         self.encoder = instantiate(hparams.encoder)
 
-        # the classification head
+        # dropout layer
+        self.dropout = torch.nn.Dropout(hparams.dropout)
+
+        # classification head
         self.cls_head = torch.nn.Sequential(
-            torch.nn.Dropout(hparams.dropout),
             torch.nn.Linear(hparams.hidden_size, hparams.num_classes),
             torch.nn.LogSoftmax(dim=-1)
         )
@@ -29,7 +31,9 @@ class TeCModel(pl.LightningModule):
         self.test_metrics = self._get_metrics(prefix="test_")
 
         # loss
-        self.loss = instantiate(hparams.loss)
+        #self.loss = instantiate(hparams.criterion)
+        self.sep_loss = instantiate(hparams.sep_criterion)
+        self.cls_loss = instantiate(hparams.cls_criterion)
 
     def _get_metrics(self, prefix):
         return MetricCollection(
@@ -41,28 +45,30 @@ class TeCModel(pl.LightningModule):
             prefix=prefix)
 
     def forward(self, text):
-        return self.encoder(text)
+        rpr = self.encoder(text)
+        return rpr, self.cls_head(rpr)
+
 
     def training_step(self, batch, batch_idx):
         text, true_cls = batch["text"], batch["cls"]
+        rpr = self.encoder(text)
         pred_cls = self.cls_head(
-            self(text)
+            self.dropout(rpr)
         )
-        train_loss = self.loss(pred_cls, true_cls)
-
         # log training loss
-        self.log('train_loss', train_loss)
+        sep_loss = self.sep_loss(rpr, pred_cls, true_cls)
+        cls_loss = self.cls_loss(rpr, pred_cls, true_cls)
+        self.log('sep_loss', sep_loss,prog_bar=True)
+        self.log('cls_loss', cls_loss,prog_bar=True)
 
-        return train_loss
+        return sep_loss + cls_loss
 
     def validation_step(self, batch, batch_idx):
         text, true_cls = batch["text"], batch["cls"]
-        pred_cls = self.cls_head(
-            self(text)
-        )
-        val_loss = self.loss(pred_cls, true_cls)
+        rpr, pred_cls = self(text)
 
         # log val loss
+        val_loss = self.cls_loss(rpr, pred_cls, true_cls)
         self.log('val_loss', val_loss)
 
         # log val metrics
@@ -73,13 +79,13 @@ class TeCModel(pl.LightningModule):
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
         idx, text, true_class = batch["idx"], batch["text"], batch["cls"]
-        rpr = self.encoder(text)
+        rpr, pred_cls = self(text)
 
         return {
             "idx": idx,
             "rpr": rpr,
             "true_cls": true_class,
-            "pred_cls": torch.argmax(self.cls_head(rpr), dim=-1)
+            "pred_cls": torch.argmax(pred_cls, dim=-1)
         }
 
     def configure_optimizers(self):

@@ -1,6 +1,6 @@
 defaults:
   - model: BERT
-  - data: ACM
+  - data: WEBKB
 
 log:
   dir: resource/log/
@@ -16,7 +16,7 @@ prediction:
 stat:
   dir: resource/stat/
 
-tasks: ["fit","predict", "eval"]
+tasks: ["fit"]
 
 trainer:
   max_epochs: 16
