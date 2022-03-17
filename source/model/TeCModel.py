@@ -83,32 +83,24 @@ class TeCModel(pl.LightningModule):
         }
 
     def configure_optimizers(self):
-        # optimizer
         optimizer = torch.optim.AdamW(
-            self.parameters(),
-            lr=self.hparams.lr,
-            betas=(0.9, 0.999),
-            eps=1e-08,
-            weight_decay=self.hparams.weight_decay,
-            amsgrad=True)
-
-        # scheduler
-        step_size_up = round(0.03 * self.num_training_steps)
-        scheduler = get_scheduler(
-            "linear",
-            optimizer=optimizer,
-            num_warmup_steps=round(0.03 * self.num_training_steps),
-            num_training_steps=self.num_training_steps
+            self.encoder.parameters(), 
+            lr=self.hparams.lr
         )
-        # scheduler = torch.optim.lr_scheduler.CyclicLR(
-        #     optimizer,
-        #     mode='triangular2',
-        #     base_lr=self.hparams.base_lr,
-        #     max_lr=self.hparams.max_lr,
-        #     step_size_up=step_size_up,
-        #     cycle_momentum=False)
+        scheduler = get_linear_schedule_with_warmup(
+          optimizer,
+          num_warmup_steps=self.hparams.n_warmup_steps,
+          num_training_steps=self.hparams.n_training_steps
+        )
 
-        return {"optimizer": optimizer, "lr_scheduler": scheduler}
+        return dict(
+          optimizer=optimizer,
+          lr_scheduler=dict(
+            scheduler=scheduler,
+            interval='step'
+          )
+        )
+
 
     @property
     def num_training_steps(self) -> int:

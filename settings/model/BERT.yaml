@@ -16,6 +16,9 @@ base_lr: 1e-7
 max_lr: 1e-3
 weight_decay: 1e-2
 
+n_warmup_steps: 100
+n_training_steps: 1000
+
 dropout: 0.1
 
 tokenizer:
