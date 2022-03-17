@@ -5,7 +5,7 @@ import torch
 from hydra.utils import instantiate
 from torch import nn, Tensor
 from torchmetrics import MetricCollection, F1
-from transformers import get_scheduler
+from transformers import get_scheduler, get_linear_schedule_with_warmup
 
 
 class TeCModel(pl.LightningModule):
