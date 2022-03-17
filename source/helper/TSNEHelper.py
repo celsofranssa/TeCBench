@@ -50,7 +50,11 @@ class TSNEHelper:
 
             tsne = self.tsne(np.array(rprs))
 
-            sns.scatterplot(tsne[:, 0], tsne[:, 1])
+            sns.scatterplot(
+                tsne[:, 0],
+                tsne[:, 1],
+                # hue="cls" insert class
+            )
             Path(self.params.tsne.dir).mkdir(parents=True, exist_ok=True)
             plt.savefig(
                 f"{self.params.tsne.dir}{fold_id}.pdf",
