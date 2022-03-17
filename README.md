@@ -32,9 +32,9 @@ Downloading the datasets from [Kaggle Datasets](https://www.kaggle.com/celsofran
 
 ```shell script
 kaggle datasets download \
-    --unzip \
-    -d celsofranssa/tecbench-datasets \
-    -p resource/dataset/
+  celsofranssa/tecbench-datasets \
+  -p resource/dataset/ \
+  --unzip
 ```
 
 Make sure that after completing the download of the datasets the file structure is as follows:

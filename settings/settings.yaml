@@ -16,6 +16,10 @@ prediction:
 stat:
   dir: resource/stat/
 
+tsne:
+  dir: resource/tsne/${model.name}_${data.name}/
+  fold_id: 0
+
 tasks: ["fit"]
 
 trainer:

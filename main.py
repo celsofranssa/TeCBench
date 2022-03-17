@@ -4,6 +4,7 @@ from omegaconf import OmegaConf
 from source.helper.EvalHelper import EvalHelper
 from source.helper.FitHelper import FitHelper
 from source.helper.PredictHelper import PredictHelper
+from source.helper.TSNEHelper import TSNEHelper
 
 
 def fit(params):
@@ -24,6 +25,10 @@ def eval(params):
 def z_shot_cls(params):
     raise NotImplementedError("Not yet implemented.")
 
+def tsne(params):
+    tsne_helper = TSNEHelper(params)
+    tsne_helper.perform_tsne()
+
 
 @hydra.main(config_path="settings/", config_name="settings.yaml")
 def perform_tasks(params):
@@ -37,6 +42,8 @@ def perform_tasks(params):
         eval(params)
     if "z-shot-cls" in params.tasks:
         z_shot_cls(params)
+    if "tsne" in params.tasks:
+        tsne(params)
 
 
 if __name__ == '__main__':
