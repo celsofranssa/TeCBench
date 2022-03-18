@@ -4,6 +4,7 @@ from omegaconf import OmegaConf
 from source.helper.EvalHelper import EvalHelper
 from source.helper.FitHelper import FitHelper
 from source.helper.PredictHelper import PredictHelper
+from source.helper.TSNEHelper import TSNEHelper
 
 
 def fit(params):
@@ -19,6 +20,10 @@ def predict(params):
 def eval(params):
     eval_helper = EvalHelper(params)
     eval_helper.perform_eval()
+
+def tsne(params):
+    tsne_obj = TSNEHelper(params)
+    tsne_obj.perform_tsne()
 
 
 def z_shot_cls(params):
@@ -37,7 +42,11 @@ def perform_tasks(params):
         eval(params)
     if "z-shot-cls" in params.tasks:
         z_shot_cls(params)
+    if "tsne" in params.tasks:
+        tsne(params)
+
 
 
 if __name__ == '__main__':
     perform_tasks()
+

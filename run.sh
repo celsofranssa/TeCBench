@@ -4,7 +4,7 @@ export PYTHONPATH=$PATHONPATH:~/projects/TeCBench/
 
 # WEBKB
 python main.py \
-  tasks=[fit,predict,eval] \
+  tasks=[tsne] \
   model=BERT \
   data=WEBKB \
   data.num_workers=12
