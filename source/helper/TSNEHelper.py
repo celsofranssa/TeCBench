@@ -78,7 +78,7 @@ class TSNEHelper:
             test_labels = []
             for prediction in predictions:
                 test_rprs.append(prediction["rpr"])
-                test_labels.append(prediction["cls"])
+                test_labels.append(prediction["true_cls"])
 
             train_rprs = np.asarray(train_rprs, dtype=np.float64)
             test_rprs = np.asarray(test_rprs, dtype=np.float64)
@@ -90,7 +90,7 @@ class TSNEHelper:
                 tsne[:, 1],
                 hue=test_labels
             )
-            
+
             Path(self.params.tsne.dir).mkdir(parents=True, exist_ok=True)
             plt.savefig(
                 f"{self.params.tsne.dir}{fold_id}.pdf",
