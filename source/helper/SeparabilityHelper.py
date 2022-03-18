@@ -67,7 +67,7 @@ class SeparabilityHelper:
         self.checkpoint_stats(stats)
 
     def silhouette_score(self, X, y):
-        return silhouette_score(X, y)
+        return silhouette_score(X, y, metric='cosine')
 
     def separability_index(self, X, y, n_neighbors=1):
         # SI metric
