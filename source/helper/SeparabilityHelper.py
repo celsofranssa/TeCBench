@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from sklearn.metrics import silhouette_score
-import tqdm
+from tqdm import tqdm
 
 class SeparabilityHelper:
     def __init__(self, params):
