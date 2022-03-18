@@ -64,7 +64,7 @@ class TeCModel(pl.LightningModule):
         rpr, pred_cls = self(text)
 
         # log val loss
-        val_loss = self.train_loss(rpr, pred_cls, true_cls)
+        val_loss = self.loss(rpr, pred_cls, true_cls)
         self.log('val_loss', val_loss)
 
         # log val metrics
