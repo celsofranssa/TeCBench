@@ -10,8 +10,6 @@ from sklearn.metrics import silhouette_score
 class SeparabilityHelper:
     def __init__(self, params):
         self.params = params
-        with open(self.params.dir + f"samples.pkl", "rb") as dataset_file:
-            self.samples = pickle.load(dataset_file)
 
     def checkpoint_stats(self, stats):
         """
@@ -25,21 +23,6 @@ class SeparabilityHelper:
     def _load_ids(self, ids_path):
         with open(ids_path, "rb") as ids_file:
             return pickle.load(ids_file)
-
-    def load_data(self, fold):
-
-        test_ids = self._load_ids(
-            f"{self.params.data.dir}fold_{fold}/test.pkl"
-        )
-
-        data = self.samples[test_ids]
-        X = []
-        y = []
-        for item in data:
-            X.append(data['vec'])
-            y.append(data['cls'])
-
-        return np.array(X), y
 
     def perform_eval(self):
         stats = pd.DataFrame(columns=["fold"])
