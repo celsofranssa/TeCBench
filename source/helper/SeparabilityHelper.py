@@ -65,7 +65,7 @@ class SeparabilityHelper:
 
         # update fold colum
         stats["fold"] = stats.index
-
+        print(stats)
         self.checkpoint_stats(stats)
 
     def silhouette_score(self, X, y):
