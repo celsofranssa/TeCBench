@@ -24,6 +24,26 @@ class SeparabilityHelper:
         with open(ids_path, "rb") as ids_file:
             return pickle.load(ids_file)
 
+
+    def load_predictions(self, fold):
+
+        predictions_paths = sorted(
+            Path(f"{self.params.prediction.dir}fold_{fold}/").glob("*.prd")
+        )
+
+        test_ids = self._load_ids(
+            f"{self.params.data.dir}fold_{fold}/test.pkl"
+        )
+
+        predictions = []
+        for path in tqdm(predictions_paths, desc="Loading predictions"):
+            predictions.extend( # only eval over test split
+                filter(lambda prediction: prediction["idx"] in test_ids, torch.load(path))
+            )
+
+        return predictions
+
+
     def perform_eval(self):
         stats = pd.DataFrame(columns=["fold"])
 
