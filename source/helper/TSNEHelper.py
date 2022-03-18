@@ -85,6 +85,7 @@ class TSNEHelper:
 
             tsne = self.tsne(train_rprs, test_rprs)
 
+            
             sns.scatterplot(
                 tsne[:, 0],
                 tsne[:, 1],
@@ -96,4 +97,6 @@ class TSNEHelper:
                 f"{self.params.tsne.dir}{fold_id}.pdf",
                 dpi=300
             )
+            plt.clf()
+
 
