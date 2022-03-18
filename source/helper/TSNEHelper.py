@@ -13,6 +13,10 @@ class TSNEHelper:
         self.params = params
         sns.set_theme(style="darkgrid")
 
+    def _load_ids(self, ids_path):
+        with open(ids_path, "rb") as ids_file:
+            self.ids = pickle.load(ids_file)
+
     def load_predictions(self, fold_id):
 
         predictions_paths = sorted(
