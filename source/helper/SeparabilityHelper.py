@@ -19,7 +19,7 @@ class SeparabilityHelper:
         :param stats: dataframe
         """
         stats.to_csv(
-            self.params.stat.dir + self.params.model.name + "_" + self.params.data.name + ".stat",
+            self.params.stat.dir + self.params.model.name + "_" + self.params.data.name + ".sep",
             sep='\t', index=False, header=True)
 
     def _load_ids(self, ids_path):
@@ -45,11 +45,18 @@ class SeparabilityHelper:
         stats = pd.DataFrame(columns=["fold"])
 
         for fold in self.params.data.folds:
-            X,y = self.load_data(fold)
-
+            X = []
+            y = []
+            predictions = self.load_predictions(fold)
+            for prediction in predictions:
+                X.append(prediction["rpr"])
+                y.append(prediction["true_cls"])
+            X = np.array(X)
             stats.at[fold, "Silhouette-Score"] = self.silhouette_score(X, y)
-            stats.at[fold, "Separability-Index"] = self.separability_index(X, y)
-            stats.at[fold, "Hypothesis-Margin"] = self.hypothesis_margin(X, y)
+            stats.at[fold, "Separability-Index"] = \
+                self.separability_index(X, y, n_neighbors=self.params.separability.n_neighbors)
+            stats.at[fold, "Hypothesis-Margin"] = \
+                self.hypothesis_margin(X, y, n_neighbors=self.params.separability.n_neighbors)
 
         # update fold colum
         stats["fold"] = stats.index

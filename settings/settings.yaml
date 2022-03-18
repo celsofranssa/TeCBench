@@ -16,6 +16,9 @@ prediction:
 stat:
   dir: resource/stat/
 
+separability:
+  n_neighbors: 1
+
 tsne:
   dir: resource/tsne/${model.name}_${data.name}/
   fold_id: 0
@@ -23,7 +26,7 @@ tsne:
 tasks: ["fit"]
 
 trainer:
-  max_epochs: 16
+  max_epochs: 2
   gpus: 1
   patience: 7
   min_delta: 0.01
