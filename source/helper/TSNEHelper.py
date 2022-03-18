@@ -17,17 +17,24 @@ class TSNEHelper:
 
     def _load_ids(self, ids_path):
         with open(ids_path, "rb") as ids_file:
-            self.ids = pickle.load(ids_file)
+            ids = pickle.load(ids_file)
+            
+            return ids
+        
+        return None
 
     def load_predictions(self, fold_id):
-
         predictions_paths = sorted(
             Path(f"{self.params.prediction.dir}fold_{fold_id}/").glob("*.prd")
         )
-
+        
         test_ids = self._load_ids(
             f"{self.params.data.dir}fold_{fold_id}/test.pkl"
         )
+        
+        if test_ids is None:
+            raise Exception("No test ids")
+        
 
         predictions = []
         for path in tqdm(predictions_paths, desc="Loading predictions"):
@@ -37,23 +44,27 @@ class TSNEHelper:
 
         return predictions
 
-    def tsne(self,rpr):
+    def tsne(self, test_rpr):
         return TSNE(
             n_components=2,
-            learning_rate='auto',
+            learning_rate=200,
             init = 'random'
-        ).fit_transform(rpr)
+        ).fit_transform(test_rpr)
+
 
     def perform_tsne(self):
 
         for fold_id in self.params.data.folds:
 
             predictions = self.load_predictions(fold_id=fold_id)
-            rprs = []
-            for prediction in predictions:
-                rprs.append(prediction["desc_rpr"])
 
-            tsne = self.tsne(np.array(rprs))
+            test_rprs = []
+            for prediction in predictions:
+                test_rprs.append(prediction["rpr"])
+            
+            test_rprs = np.asarray(test_rprs, dtype=np.float64)
+
+            tsne = self.tsne(test_rprs)
 
             sns.scatterplot(
                 tsne[:, 0],
@@ -65,3 +76,4 @@ class TSNEHelper:
                 f"{self.params.tsne.dir}{fold_id}.pdf",
                 dpi=300
             )
+
