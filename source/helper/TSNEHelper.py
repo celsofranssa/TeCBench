@@ -61,7 +61,7 @@ class TSNEHelper:
                         random_state=42,
                         verbose=True,
                     ).fit(train_rpr)
-        return tsne_obj.transform(test_rprs)
+        return tsne_obj.transform(test_rpr)
 
 
     def perform_tsne(self):
