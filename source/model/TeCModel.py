@@ -3,11 +3,10 @@ import json
 import pytorch_lightning as pl
 import torch
 from hydra.utils import instantiate
-from torch import nn, Tensor
 from torchmetrics import MetricCollection, F1
 from transformers import get_scheduler
 
-
+2
 class TeCModel(pl.LightningModule):
 
     def __init__(self, hparams):
@@ -31,9 +30,8 @@ class TeCModel(pl.LightningModule):
         self.test_metrics = self._get_metrics(prefix="test_")
 
         # loss
-        #self.loss = instantiate(hparams.criterion)
-        self.sep_loss = instantiate(hparams.sep_criterion)
-        self.cls_loss = instantiate(hparams.cls_criterion)
+        self.loss = instantiate(hparams.criterion)
+
 
     def _get_metrics(self, prefix):
         return MetricCollection(
@@ -56,19 +54,17 @@ class TeCModel(pl.LightningModule):
             self.dropout(rpr)
         )
         # log training loss
-        sep_loss = self.sep_loss(rpr, pred_cls, true_cls)
-        cls_loss = self.cls_loss(rpr, pred_cls, true_cls)
-        self.log('sep_loss', sep_loss,prog_bar=True)
-        self.log('cls_loss', cls_loss,prog_bar=True)
+        train_loss = self.loss(rpr, pred_cls, true_cls)
 
-        return sep_loss + cls_loss
+        self.log('train_loss', train_loss)
+        return train_loss
 
     def validation_step(self, batch, batch_idx):
         text, true_cls = batch["text"], batch["cls"]
         rpr, pred_cls = self(text)
 
         # log val loss
-        val_loss = self.cls_loss(rpr, pred_cls, true_cls)
+        val_loss = self.train_loss(rpr, pred_cls, true_cls)
         self.log('val_loss', val_loss)
 
         # log val metrics
@@ -106,13 +102,6 @@ class TeCModel(pl.LightningModule):
             num_warmup_steps=round(0.03 * self.num_training_steps),
             num_training_steps=self.num_training_steps
         )
-        # scheduler = torch.optim.lr_scheduler.CyclicLR(
-        #     optimizer,
-        #     mode='triangular2',
-        #     base_lr=self.hparams.base_lr,
-        #     max_lr=self.hparams.max_lr,
-        #     step_size_up=step_size_up,
-        #     cycle_momentum=False)
 
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
