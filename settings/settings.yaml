@@ -13,6 +13,14 @@ prediction:
   fold_id: -1
   write_interval: batch
 
+tsne:
+  dir: resource/tsne/${model.name}_${data.name}/
+  fold_id: 0
+
+pca:
+  dir: resource/pca/${model.name}_${data.name}/
+  fold_id: 0
+
 stat:
   dir: resource/stat/
 
