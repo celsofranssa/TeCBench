@@ -21,12 +21,13 @@ separability:
 
 tsne:
   dir: resource/tsne/${model.name}_${data.name}/
-  fold_id: 0
+  n_jobs: ${data.num_workers}
+  random_state: 42
 
-tasks: ["fit"]
+tasks: ["tsne"]
 
 trainer:
-  max_epochs: 2
+  max_epochs: 16
   gpus: 1
   patience: 7
   min_delta: 0.01

@@ -8,5 +8,5 @@ max_length: 256
 
 num_classes: 11
 
-batch_size: 64
-num_workers: 32
+batch_size: 32
+num_workers: 12

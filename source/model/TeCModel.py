@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 import torch
 from hydra.utils import instantiate
 from torchmetrics import MetricCollection, F1
-from transformers import get_scheduler
+from transformers import get_scheduler, get_linear_schedule_with_warmup
 
 2
 class TeCModel(pl.LightningModule):
@@ -21,8 +21,7 @@ class TeCModel(pl.LightningModule):
 
         # classification head
         self.cls_head = torch.nn.Sequential(
-            torch.nn.Linear(hparams.hidden_size, hparams.num_classes),
-            torch.nn.LogSoftmax(dim=-1)
+            torch.nn.Linear(hparams.hidden_size, hparams.num_classes)
         )
 
         # validation and test metrics
@@ -53,6 +52,7 @@ class TeCModel(pl.LightningModule):
         pred_cls = self.cls_head(
             self.dropout(rpr)
         )
+
         # log training loss
         train_loss = self.loss(rpr, pred_cls, true_cls)
 
@@ -68,7 +68,7 @@ class TeCModel(pl.LightningModule):
         self.log('val_loss', val_loss)
 
         # log val metrics
-        self.log_dict(self.val_metrics(pred_cls, true_cls), prog_bar=True)
+        self.log_dict(self.val_metrics(torch.argmax(pred_cls, dim=-1), true_cls), prog_bar=True)
 
     def validation_epoch_end(self, outs):
         self.val_metrics.compute()
@@ -89,17 +89,14 @@ class TeCModel(pl.LightningModule):
         optimizer = torch.optim.AdamW(
             self.parameters(),
             lr=self.hparams.lr,
-            betas=(0.9, 0.999),
-            eps=1e-08,
             weight_decay=self.hparams.weight_decay,
             amsgrad=True)
 
         # scheduler
         step_size_up = round(0.03 * self.num_training_steps)
-        scheduler = get_scheduler(
-            "linear",
+        scheduler = get_linear_schedule_with_warmup(
             optimizer=optimizer,
-            num_warmup_steps=round(0.03 * self.num_training_steps),
+            num_warmup_steps=0,
             num_training_steps=self.num_training_steps
         )
 

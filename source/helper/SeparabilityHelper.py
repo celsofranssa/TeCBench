@@ -63,9 +63,8 @@ class SeparabilityHelper:
             stats.at[fold, "Hypothesis-Margin"] = \
                 self.hypothesis_margin(X, y, n_neighbors=self.params.separability.n_neighbors)
 
-        # update fold colum
+        # update fold column
         stats["fold"] = stats.index
-        print(stats)
         self.checkpoint_stats(stats)
 
     def silhouette_score(self, X, y):

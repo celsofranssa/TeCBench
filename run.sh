@@ -2,11 +2,9 @@
 source ~/projects/venvs/TeCBench/bin/activate
 export PYTHONPATH=$PATHONPATH:~/projects/TeCBench/
 
-# WEBKB
+# AISOPOS
 python main.py \
-  tasks=[fit,predict,eval] \
+  tasks=[fit,predict,eval,tsne] \
   model=BERT \
-  data=WEBKB \
-  data.folds=[0,1,2] \
-  data.batch_size=64 \
+  data=AISOPOS \
   data.num_workers=12
