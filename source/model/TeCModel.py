@@ -6,7 +6,6 @@ from hydra.utils import instantiate
 from torchmetrics import MetricCollection, F1
 from transformers import get_scheduler, get_linear_schedule_with_warmup
 
-2
 class TeCModel(pl.LightningModule):
 
     def __init__(self, hparams):
@@ -96,7 +95,7 @@ class TeCModel(pl.LightningModule):
         step_size_up = round(0.03 * self.num_training_steps)
         scheduler = get_linear_schedule_with_warmup(
             optimizer=optimizer,
-            num_warmup_steps=0,
+            num_warmup_steps=round(0.03 * self.num_training_steps),
             num_training_steps=self.num_training_steps
         )
 
