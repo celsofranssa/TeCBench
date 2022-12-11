@@ -5,7 +5,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.metrics import f1_score, silhouette_score
+from omegaconf import OmegaConf
+from sklearn.metrics import f1_score, silhouette_score, precision_score, recall_score, classification_report, \
+    confusion_matrix
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
@@ -22,6 +24,14 @@ class EvalHelper:
         stats.to_csv(
             self.params.stat.dir + self.params.model.name + "_" + self.params.data.name + ".stat",
             sep='\t', index=False, header=True)
+
+    def checkpoint_reports(self, reports):
+        with open(f"{self.params.stat.dir}{self.params.model.name}_{self.params.data.name}.rpt", "wb") as reports_file:
+            pickle.dump(reports, reports_file)
+
+    def checkpoint_confusion_matrices(self, confusion_matrices):
+        with open(f"{self.params.stat.dir}{self.params.model.name}_{self.params.data.name}.cfm", "wb") as confusion_matrices_file:
+            pickle.dump(confusion_matrices, confusion_matrices_file)
 
     def _load_ids(self, ids_path):
         with open(ids_path, "rb") as ids_file:
@@ -47,8 +57,14 @@ class EvalHelper:
 
     def perform_eval(self):
         stats = pd.DataFrame(columns=["fold"])
+        reports = {}
+        confusion_matrices = {}
 
         for fold in self.params.data.folds:
+            print(
+                f"Evaluating {self.params.model.name} over {self.params.data.name} "
+                f"(fold {fold}) with fowling self.params\n"
+                f"{OmegaConf.to_yaml(self.params)}\n")
             true_classes = []
             pred_classes = []
             rprs = []
@@ -61,27 +77,17 @@ class EvalHelper:
             stats.at[fold, "Mic-F1"] = f1_score(true_classes, pred_classes, average='micro')
             stats.at[fold, "Mac-F1"] = f1_score(true_classes, pred_classes, average='macro')
             stats.at[fold, "Wei-F1"] = f1_score(true_classes, pred_classes, average='weighted')
+            reports[fold] = classification_report(true_classes, pred_classes,
+                                                  target_names=self.params.data.labels, output_dict=True)
+            confusion_matrices[fold] = confusion_matrix(true_classes, pred_classes)
 
-            # separability metrics
-            stats.at[fold, "Silhouette-Score"] = self.silhouette_score(
-                rprs,
-                true_classes
-            )
-            stats.at[fold, "Separability-Index"] = self.separability_index(
-                rprs,
-                true_classes,
-                n_neighbors=self.params.separability.n_neighbors
-            )
-            stats.at[fold, "Hypothesis-Margin"] = self.hypothesis_margin(
-                rprs,
-                true_classes,
-                n_neighbors=self.params.separability.n_neighbors
-            )
 
         # update fold colum
         stats["fold"] = stats.index
 
         self.checkpoint_stats(stats)
+        self.checkpoint_reports(reports)
+        self.checkpoint_confusion_matrices(confusion_matrices)
 
 
     def silhouette_score(self, X, y):
@@ -125,3 +131,5 @@ class EvalHelper:
             b = np.mean(inters)
             scores.append((b - a) / max(a, b))
         return np.mean(scores)
+
+

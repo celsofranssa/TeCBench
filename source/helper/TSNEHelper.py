@@ -72,8 +72,8 @@ class TSNEHelper:
                 )
 
             sns.scatterplot(
-                tsne_rpr[:, 0],
-                tsne_rpr[:, 1],
+                x=tsne_rpr[:, 0],
+                y=tsne_rpr[:, 1],
                 hue=test_predictions_df["true_cls"],
                 palette="deep"
             )

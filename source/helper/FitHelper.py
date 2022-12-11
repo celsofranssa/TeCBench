@@ -1,7 +1,7 @@
 from omegaconf import OmegaConf
 import pytorch_lightning as pl
-from pytorch_lightning import loggers
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+from pytorch_lightning import loggers, seed_everything
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, LearningRateMonitor, TQDMProgressBar
 from transformers import AutoTokenizer
 
 from source.datamodule.TecDataModule import TeCDataModule
@@ -14,26 +14,30 @@ class FitHelper:
         self.params = params
 
     def perform_fit(self):
-        for fold_id in self.params.data.folds:
+        seed_everything(777, workers=True)
+
+        for fold_idx in self.params.data.folds:
             # Initialize a trainer
             trainer = pl.Trainer(
                 fast_dev_run=self.params.trainer.fast_dev_run,
                 max_epochs=self.params.trainer.max_epochs,
                 precision=self.params.trainer.precision,
                 gpus=self.params.trainer.gpus,
-                progress_bar_refresh_rate=self.params.trainer.progress_bar_refresh_rate,
-                logger=self.get_logger(self.params, fold_id),
+                logger=self.get_logger(self.params, fold_idx),
                 callbacks=[
-                    self.get_model_checkpoint_callback(self.params, fold_id),  # checkpoint_callback
+                    self.get_model_checkpoint_callback(self.params, fold_idx),  # checkpoint_callback
                     self.get_early_stopping_callback(self.params),  # early_stopping_callback
-                ]
+                    self.get_lr_monitor(),
+                    self.get_progress_bar_callback()
+                ],
+                deterministic=True
             )
 
             # datamodule
             datamodule = TeCDataModule(
                 params=self.params.data,
                 tokenizer=self.get_tokenizer(self.params.model.tokenizer),
-                fold=fold_id
+                fold=fold_idx
             )
 
             # model
@@ -42,7 +46,7 @@ class FitHelper:
             # Train the ⚡ model
             print(
                 f"Fitting {self.params.model.name} over {self.params.data.name} "
-                f"(fold {fold_id}) with fowling self.params\n"
+                f"(fold {fold_idx}) with fowling self.params\n"
                 f"{OmegaConf.to_yaml(self.params)}\n")
             trainer.fit(
                 model=model,
@@ -67,7 +71,7 @@ class FitHelper:
 
     def get_early_stopping_callback(self, params):
         return EarlyStopping(
-            monitor="val_Wei-F1",
+            monitor="val_Mac-F1",
             patience=params.trainer.patience,
             min_delta=params.trainer.min_delta,
             mode='max'
@@ -81,3 +85,12 @@ class FitHelper:
             tokenizer.add_special_tokens({'pad_token': '[PAD]'})
             params.pad = tokenizer.convert_tokens_to_ids("[PAD]")
         return tokenizer
+
+    def get_lr_monitor(self):
+        return LearningRateMonitor(logging_interval='step')
+
+    def get_progress_bar_callback(self):
+        return TQDMProgressBar(
+            refresh_rate=self.params.trainer.progress_bar_refresh_rate,
+            process_position=0
+        )

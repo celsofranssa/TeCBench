@@ -27,9 +27,9 @@ tsne:
 tasks: ["tsne"]
 
 trainer:
-  max_epochs: 16
+  max_epochs: 8
   gpus: 1
-  patience: 7
+  patience: 3
   min_delta: 0.01
   precision: 32
   fast_dev_run: False

@@ -3,7 +3,7 @@ import json
 import pytorch_lightning as pl
 import torch
 from hydra.utils import instantiate
-from torchmetrics import MetricCollection, F1
+from torchmetrics import MetricCollection, F1Score
 from transformers import get_scheduler, get_linear_schedule_with_warmup
 
 class TeCModel(pl.LightningModule):
@@ -34,11 +34,12 @@ class TeCModel(pl.LightningModule):
     def _get_metrics(self, prefix):
         return MetricCollection(
             metrics={
-                "Mic-F1": F1(num_classes=self.hparams.num_classes, average="micro"),
-                "Mac-F1": F1(num_classes=self.hparams.num_classes, average="macro"),
-                "Wei-F1": F1(num_classes=self.hparams.num_classes, average="weighted")
+                "Mic-F1": F1Score(num_classes=self.hparams.num_classes, average="micro"),
+                "Mac-F1": F1Score(num_classes=self.hparams.num_classes, average="macro"),
+                "Wei-F1": F1Score(num_classes=self.hparams.num_classes, average="weighted")
             },
             prefix=prefix)
+
 
     def forward(self, text):
         rpr = self.encoder(text)
@@ -92,18 +93,11 @@ class TeCModel(pl.LightningModule):
             amsgrad=True)
 
         # scheduler
-        step_size_up = round(0.03 * self.num_training_steps)
-        scheduler = get_linear_schedule_with_warmup(
-            optimizer=optimizer,
-            num_warmup_steps=round(0.03 * self.num_training_steps),
-            num_training_steps=self.num_training_steps
-        )
 
-        return {"optimizer": optimizer, "lr_scheduler": scheduler}
+        scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, mode='triangular2',
+                                                      base_lr=self.hparams.base_lr,
+                                                      max_lr=self.hparams.max_lr, step_size_up=round(0.33 * self.trainer.estimated_stepping_batches),
+                                                      cycle_momentum=False)
 
-    @property
-    def num_training_steps(self) -> int:
-        """Total training steps inferred from datamodule and number of epochs."""
-        steps_per_epochs = len(self.train_dataloader()) / self.trainer.accumulate_grad_batches
-        max_epochs = self.trainer.max_epochs
-        return steps_per_epochs * max_epochs
+        return {"optimizer": optimizer, "lr_scheduler": {"scheduler": scheduler, "interval": "step", "name": "SCHDLR"}}
+
