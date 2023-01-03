@@ -1,0 +1,12 @@
+name: DIARIOS
+
+dir: resource/dataset/DIARIOS/
+
+folds: [0,1,2,3,4]
+max_length: 256
+
+num_classes: 4
+labels: ['lei','licitação','orçamento','pessoal']
+
+batch_size: 64
+num_workers: 12

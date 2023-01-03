@@ -3,13 +3,11 @@ source ~/projects/venvs/TeCBench/bin/activate
 export PYTHONPATH=$PATHONPATH:~/projects/TeCBench/
 
 python main.py \
-  tasks=[eval] \
+  tasks=[fit,predict,eval] \
   trainer.precision=32 \
-  model=BERTimbau \
-  data=PROCON \
-  data.folds=[0] \
-  data.max_length=256 \
-  data.batch_size=64
+  model=LaBSE \
+  data=DIARIOS \
+  data.folds=[0]
 
 
 
