@@ -1,5 +1,5 @@
-name: AISOPOS
-dir: resource/dataset/aisopos_ntua_2L/
+name: 20NG
+dir: resource/dataset/20ng/
 
 folds: [0,1,2,3,4,5,6,7,8,9]
 

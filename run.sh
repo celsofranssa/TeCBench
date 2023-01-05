@@ -8,8 +8,7 @@ python main.py \
   trainer.patience=30 \
   trainer.min_delta=0.05 \
   model=CNN \
-  data=AISOPOS \
-  data.folds=[0]
+  data=20NG
 
 
 
