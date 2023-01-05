@@ -3,7 +3,10 @@ source ~/projects/venvs/TeCBench/bin/activate
 export PYTHONPATH=$PATHONPATH:~/projects/TeCBench/
 
 python main.py \
-  tasks=[predict,eval] \
+  tasks=[fit,predict,eval] \
+  trainer.max_epochs=100 \
+  trainer.patience=30 \
+  trainer.min_delta=0.05 \
   model=CNN \
   data=AISOPOS \
   data.folds=[0]

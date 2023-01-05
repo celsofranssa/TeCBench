@@ -71,7 +71,5 @@ class TeCDataModule(pl.LightningDataModule):
 
     def predict_dataloader(self):
         return [
-            self.train_dataloader(),
-            self.val_dataloader(),
             self.test_dataloader()
         ]

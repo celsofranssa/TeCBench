@@ -18,6 +18,23 @@ class CNNEncoder(LightningModule):
         self.l8 = nn.ReLU()
         self.l9 = nn.Dropout(0.2)
 
+        # model_en = tf.keras.Sequential([
+        #     tf.keras.Input(shape=(1,), dtype=tf.string),
+        #     vectorize_layer_en,
+        #     layers.Embedding(max_features + 1, embedding_dim),
+        #     layers.Dropout(0.8),
+        #
+        #     layers.Conv1D(256, 16, activation='relu'),
+        #     layers.MaxPooling1D(),
+        #     layers.Dropout(0.6),
+        #
+        #     layers.Dense(512, activation='relu'),
+        #
+        #     layers.GlobalAveragePooling1D(),
+        #     layers.Dropout(0.2),
+        #     layers.Dense(10)
+        # ])
+
     def forward(self, x):
         x = self.l1(x)
         x = self.l2(x)

@@ -30,7 +30,8 @@ class EvalHelper:
             pickle.dump(reports, reports_file)
 
     def checkpoint_confusion_matrices(self, confusion_matrices):
-        with open(f"{self.params.stat.dir}{self.params.model.name}_{self.params.data.name}.cfm", "wb") as confusion_matrices_file:
+        with open(f"{self.params.stat.dir}{self.params.model.name}_{self.params.data.name}.cfm",
+                  "wb") as confusion_matrices_file:
             pickle.dump(confusion_matrices, confusion_matrices_file)
 
     def _load_ids(self, ids_path):
@@ -49,7 +50,7 @@ class EvalHelper:
 
         predictions = []
         for path in tqdm(predictions_paths, desc="Loading predictions"):
-            predictions.extend( # only eval over test split
+            predictions.extend(  # only eval over test split
                 filter(lambda prediction: prediction["idx"] in test_ids, torch.load(path))
             )
 
@@ -78,14 +79,10 @@ class EvalHelper:
             stats.at[fold, "Mac-F1"] = f1_score(true_classes, pred_classes, average='macro')
             stats.at[fold, "Wei-F1"] = f1_score(true_classes, pred_classes, average='weighted')
 
-
-
         # update fold colum
         stats["fold"] = stats.index
 
         self.checkpoint_stats(stats)
-
-
 
     def silhouette_score(self, X, y):
         return silhouette_score(X, y, metric='cosine')
@@ -128,5 +125,3 @@ class EvalHelper:
             b = np.mean(inters)
             scores.append((b - a) / max(a, b))
         return np.mean(scores)
-
-
