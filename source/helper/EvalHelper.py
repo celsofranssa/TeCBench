@@ -77,17 +77,14 @@ class EvalHelper:
             stats.at[fold, "Mic-F1"] = f1_score(true_classes, pred_classes, average='micro')
             stats.at[fold, "Mac-F1"] = f1_score(true_classes, pred_classes, average='macro')
             stats.at[fold, "Wei-F1"] = f1_score(true_classes, pred_classes, average='weighted')
-            reports[fold] = classification_report(true_classes, pred_classes,
-                                                  target_names=self.params.data.labels, output_dict=True)
-            confusion_matrices[fold] = confusion_matrix(true_classes, pred_classes)
+
 
 
         # update fold colum
         stats["fold"] = stats.index
 
         self.checkpoint_stats(stats)
-        self.checkpoint_reports(reports)
-        self.checkpoint_confusion_matrices(confusion_matrices)
+
 
 
     def silhouette_score(self, X, y):

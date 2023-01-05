@@ -1,6 +1,6 @@
 defaults:
-  - model: BERT
-  - data: WEBKB
+  - model: CNN
+  - data: DIARIOS
 
 log:
   dir: resource/log/
@@ -24,7 +24,7 @@ tsne:
   n_jobs: ${data.num_workers}
   random_state: 42
 
-tasks: ["tsne"]
+tasks: ["fit"]
 
 trainer:
   max_epochs: 8

@@ -3,10 +3,9 @@ source ~/projects/venvs/TeCBench/bin/activate
 export PYTHONPATH=$PATHONPATH:~/projects/TeCBench/
 
 python main.py \
-  tasks=[fit,predict,eval] \
-  trainer.precision=32 \
-  model=LaBSE \
-  data=DIARIOS \
+  tasks=[predict,eval] \
+  model=CNN \
+  data=AISOPOS \
   data.folds=[0]
 
 

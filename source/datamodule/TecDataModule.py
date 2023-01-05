@@ -18,6 +18,7 @@ class TeCDataModule(pl.LightningDataModule):
         with open(self.params.dir + f"samples.pkl", "rb") as dataset_file:
             self.samples = pickle.load(dataset_file)
 
+
     def setup(self, stage=None):
 
         if stage == 'fit' or stage is "predict":

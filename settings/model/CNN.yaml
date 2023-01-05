@@ -1,0 +1,39 @@
+name: CNN
+
+encoder:
+  _target_: source.encoder.CNNEncoder.CNNEncoder
+  vocabulary_size: 55000
+  hidden_size: 768
+  max_length: ${data.max_length}
+
+hidden_size: 768
+
+num_classes: ${data.num_classes}
+
+lr: 1e-3
+weight_decay: 1e-2
+base_lr: 1e-4
+max_lr: 1e-2
+
+dropout: 0.1
+
+tokenizer:
+  architecture: bert-base-uncased
+
+
+loss: CrossEntropyLoss
+criterion:
+  _target_: source.loss.${model.loss}.${model.loss}
+  params:
+    name: ${model.loss}
+    margin: 1.0
+    epsilon: 1e-6
+    reduction: mean
+    swap: False,
+    smooth_loss: False,
+    triplets_per_anchor: "all"
+    temperature: 0.07
+
+stat:
+  dir: resource/stat/
+  name: ${model.name}_${data.name}.stat

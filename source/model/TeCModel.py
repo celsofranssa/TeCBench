@@ -15,12 +15,10 @@ class TeCModel(pl.LightningModule):
         # encoder layer
         self.encoder = instantiate(hparams.encoder)
 
-        # dropout layer
-        self.dropout = torch.nn.Dropout(hparams.dropout)
 
         # classification head
         self.cls_head = torch.nn.Sequential(
-            torch.nn.Linear(hparams.hidden_size, hparams.num_classes)
+            torch.nn.Linear(512, hparams.num_classes)
         )
 
         # validation and test metrics
@@ -49,9 +47,7 @@ class TeCModel(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         text, true_cls = batch["text"], batch["cls"]
         rpr = self.encoder(text)
-        pred_cls = self.cls_head(
-            self.dropout(rpr)
-        )
+        pred_cls = self.cls_head(rpr)
 
         # log training loss
         train_loss = self.loss(rpr, pred_cls, true_cls)
@@ -61,7 +57,10 @@ class TeCModel(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         text, true_cls = batch["text"], batch["cls"]
+        # print(f"text ({batch['text'].shape}):\n{batch['text']}")
+        # print(f"cls ({batch['cls'].shape}):\n{batch['cls']}")
         rpr, pred_cls = self(text)
+        # print(f"pred ({pred_cls.shape}):\n{pred_cls}")
 
         # log val loss
         val_loss = self.loss(rpr, pred_cls, true_cls)
@@ -93,7 +92,6 @@ class TeCModel(pl.LightningModule):
             amsgrad=True)
 
         # scheduler
-
         scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, mode='triangular2',
                                                       base_lr=self.hparams.base_lr,
                                                       max_lr=self.hparams.max_lr, step_size_up=round(0.33 * self.trainer.estimated_stepping_batches),
