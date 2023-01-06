@@ -27,10 +27,10 @@ tsne:
 tasks: ["fit"]
 
 trainer:
-  max_epochs: 8
+  max_epochs: 100
   gpus: 1
-  patience: 3
-  min_delta: 0.01
+  patience: 30
+  min_delta: 0.03
   precision: 32
   fast_dev_run: False
   progress_bar_refresh_rate: 1
