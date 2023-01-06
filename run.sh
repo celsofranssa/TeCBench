@@ -8,7 +8,7 @@ python main.py \
   trainer.patience=30 \
   trainer.min_delta=0.05 \
   model=CNN \
-  data=20NG
+  data=WEBKB
 
 
 

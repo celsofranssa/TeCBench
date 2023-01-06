@@ -75,9 +75,9 @@ class EvalHelper:
                 pred_classes.append(prediction["pred_cls"])
                 rprs.append(prediction["rpr"])
 
-            stats.at[fold, "Mic-F1"] = f1_score(true_classes, pred_classes, average='micro')
-            stats.at[fold, "Mac-F1"] = f1_score(true_classes, pred_classes, average='macro')
-            stats.at[fold, "Wei-F1"] = f1_score(true_classes, pred_classes, average='weighted')
+            stats.at[fold, "Mic-F1"] = round(f1_score(true_classes, pred_classes, average='micro'), 3)
+            stats.at[fold, "Mac-F1"] = round(f1_score(true_classes, pred_classes, average='macro'), 3)
+            stats.at[fold, "Wei-F1"] = round(f1_score(true_classes, pred_classes, average='weighted'), 3)
 
         # update fold colum
         stats["fold"] = stats.index

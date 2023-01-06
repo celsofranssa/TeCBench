@@ -41,7 +41,6 @@ class CNNEncoder(LightningModule):
         x = self.l3(x)
         x = self.l4(x)
         x = self.l5(x)
-
         x = self.l6(x)
         x = self.l7(torch.mean(x, dim=1))
         x = self.l8(x)
