@@ -1,0 +1,11 @@
+name: SOGOU
+dir: resource/dataset/sogou/
+
+folds: [0,1,2,3,4]
+
+max_length: 256
+
+num_classes: 5
+
+batch_size: 64
+num_workers: 12
