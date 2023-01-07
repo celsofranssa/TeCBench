@@ -5,22 +5,12 @@ export PYTHONPATH=$PATHONPATH:/projects/TeCBench/
 python main.py \
   tasks=[fit,predict,eval] \
   model=CNN \
-  data=BOOKS
+  data=IMDB
 
 python main.py \
   tasks=[fit,predict,eval] \
   model=CNN \
-  data=DBLP
-
-python main.py \
-  tasks=[fit,predict,eval] \
-  model=CNN \
-  data=AGNEWS
-
-python main.py \
-  tasks=[fit,predict,eval] \
-  model=CNN \
-  data=SOGOU
+  data=YELP2015
 
 
 

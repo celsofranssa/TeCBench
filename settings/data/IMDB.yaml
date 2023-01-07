@@ -1,0 +1,11 @@
+name: IMDB
+dir: resource/dataset/imdb_reviews/
+
+folds: [0,1,2,3,4]
+
+max_length: 256
+
+num_classes: 10
+
+batch_size: 64
+num_workers: 12
