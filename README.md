@@ -99,8 +99,6 @@ TeCBench/
     │   └── BertEncoder.py
     ├── helper
     │   └── EvalHelper.py
-    ├── metric
-    │   └── F1.py
     ├── model
     │   └── TeCModel.py
     └── pooling

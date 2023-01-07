@@ -1,10 +1,10 @@
-import json
+
 
 import pytorch_lightning as pl
 import torch
 from hydra.utils import instantiate
 from torchmetrics import MetricCollection, F1Score
-from transformers import get_scheduler, get_linear_schedule_with_warmup
+
 
 class TeCModel(pl.LightningModule):
 
