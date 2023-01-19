@@ -80,7 +80,7 @@ class TeCModel(pl.LightningModule):
             "idx": idx,
             "rpr": rpr,
             "true_cls": true_class,
-            "pred_cls": torch.argmax(pred_cls, dim=-1)
+            "pred_cls": torch.nn.functional.softmax(pred_cls, dim=-1)
         }
 
     def configure_optimizers(self):
