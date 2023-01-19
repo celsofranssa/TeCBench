@@ -53,4 +53,4 @@ def prediction(model, dataset, fold_idx):
 
 
 if __name__ == '__main__':
-    prediction()
+    prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0)
