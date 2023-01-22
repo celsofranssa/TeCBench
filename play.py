@@ -34,23 +34,47 @@ def _load_ids(self, ids_path):
     with open(ids_path, "rb") as ids_file:
         return pickle.load(ids_file)
 
-def prediction(model, dataset, fold_idx):
+
+# def read_prediction(model, dataset, fold_idx):
+#
+#     predictions_paths = sorted(
+#         Path(f"resource/prediction/{model}_{dataset}S/fold_{fold_idx}/").glob("*.prd")
+#     )
+#
+#     with open(f"resource/dataset/{dataset}/fold_{fold_idx}/test.pkl", "rb") as ids_file:
+#         test_ids = pickle.load(ids_file)
+#
+#     predictions = []
+#     for path in tqdm(predictions_paths, desc="Loading predictions"):
+#         predictions.extend( # only eval over test split
+#             filter(lambda prediction: prediction["idx"] in test_ids, torch.load(path))
+#         )
+#
+#     return predictions
+
+def read_prediction(model, dataset, fold_idx, split):
+    """Read model predictions.
+    :param str model: model name (BERT, BERTimbau or LaBSE).
+    :param dataset: dataset name (such as DIARIOS).
+    :param fold_idx: the fold index (0,1,2,3 or 4).
+    :param split: the split name (train, val or test).
+    """
 
     predictions_paths = sorted(
         Path(f"resource/prediction/{model}_{dataset}S/fold_{fold_idx}/").glob("*.prd")
     )
 
-    with open(f"resource/dataset/{dataset}/fold_{fold_idx}/test.pkl", "rb") as ids_file:
-        test_ids = pickle.load(ids_file)
+    with open(f"resource/dataset/{dataset}/fold_{fold_idx}/{split}.pkl", "rb") as ids_file:
+        split_ids = pickle.load(ids_file)
 
     predictions = []
     for path in tqdm(predictions_paths, desc="Loading predictions"):
-        predictions.extend( # only eval over test split
-            filter(lambda prediction: prediction["idx"] in test_ids, torch.load(path))
+        predictions.extend(  # only eval over test split
+            filter(lambda prediction: prediction["idx"] in split_ids, torch.load(path))
         )
 
     return predictions
 
 
 if __name__ == '__main__':
-    prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0)
+    read_prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0, split="test")
