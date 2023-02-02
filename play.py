@@ -23,12 +23,14 @@ def get_ic(model, dataset):
         stat_df["Mac-F1"].tolist()
     ))
 
-def show_cls (dataset):
+
+def show_cls(dataset):
     print(dataset)
     with open(f"resource/dataset/{dataset}/samples.pkl", "rb") as samples_file:
         samples_df = pd.DataFrame(pickle.load(samples_file))
         print(samples_df["cls"].unique())
         print(samples_df["cls"].nunique())
+
 
 def _load_ids(self, ids_path):
     with open(ids_path, "rb") as ids_file:
@@ -76,5 +78,13 @@ def read_prediction(model, dataset, fold_idx, split):
     return predictions
 
 
+def inspect_dataset(dataset):
+    with open(f"resource/dataset/{dataset}/samples.pkl", "rb") as samples_fle:
+        s = pickle.load(samples_fle)
+    print(len(s))
+
+
 if __name__ == '__main__':
-    read_prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0, split="test")
+    #read_prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0, split="test")
+    inspect_dataset("DIARIOS")
+
