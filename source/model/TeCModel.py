@@ -62,10 +62,6 @@ class TeCModel(pl.LightningModule):
         text, true_cls = batch["text"], batch["cls"]
         rpr, pred_cls = self(text)
 
-        # log val loss
-        val_loss = self.loss(rpr, pred_cls, true_cls)
-        self.log('val_loss', val_loss)
-
         # log val metrics
         self.log_dict(self.val_metrics(torch.argmax(pred_cls, dim=-1), true_cls), prog_bar=True)
 
@@ -92,7 +88,6 @@ class TeCModel(pl.LightningModule):
             amsgrad=True)
 
         # scheduler
-        step_size_up = round(0.03 * self.num_training_steps)
         scheduler = get_linear_schedule_with_warmup(
             optimizer=optimizer,
             num_warmup_steps=round(0.03 * self.num_training_steps),

@@ -13,15 +13,16 @@ def mean_confidence_interval(data, confidence=0.95):
     n = len(a)
     m, se = np.mean(a), scipy.stats.sem(a)
     h = se * scipy.stats.t.ppf((1 + confidence) / 2., n - 1)
-    return round(100 * m, 3), round(100 * h, 3)
+    return round(m, 2), round(h, 2)
 
 
 def get_ic(model, dataset):
     stat_path = f"resource/stat/{model}_{dataset}.stat"
     stat_df = pd.read_csv(stat_path, header=0, sep="\t")
-    print(mean_confidence_interval(
-        stat_df["Mac-F1"].tolist()
-    ))
+    print(f"Model: {model} - Dataset: {dataset}")
+    print(f"Mic-F1: {mean_confidence_interval(stat_df['Mic-F1'].tolist())}")
+    print(f"Mac-F1: {mean_confidence_interval(stat_df['Mac-F1'].tolist())}")
+    print(f"Wei-F1: {mean_confidence_interval(stat_df['Wei-F1'].tolist())}")
 
 
 def show_cls(dataset):
@@ -85,6 +86,7 @@ def inspect_dataset(dataset):
 
 
 if __name__ == '__main__':
+    get_ic("LaBSE", "DIARIOS++")
     #read_prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0, split="test")
-    inspect_dataset("DIARIOS")
+    # inspect_dataset("DIARIOS")
 

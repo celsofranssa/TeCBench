@@ -33,15 +33,9 @@ class EvalHelper:
             Path(f"{self.params.prediction.dir}fold_{fold}/").glob("*.prd")
         )
 
-        test_ids = self._load_ids(
-            f"{self.params.data.dir}fold_{fold}/test.pkl"
-        )
-
         predictions = []
         for path in tqdm(predictions_paths, desc="Loading predictions"):
-            predictions.extend( # only eval over test split
-                filter(lambda prediction: prediction["idx"] in test_ids, torch.load(path))
-            )
+            predictions.extend(torch.load(path))
 
         return predictions
 
@@ -61,22 +55,6 @@ class EvalHelper:
             stats.at[fold, "Mic-F1"] = f1_score(true_classes, pred_classes, average='micro')
             stats.at[fold, "Mac-F1"] = f1_score(true_classes, pred_classes, average='macro')
             stats.at[fold, "Wei-F1"] = f1_score(true_classes, pred_classes, average='weighted')
-
-            # separability metrics
-            stats.at[fold, "Silhouette-Score"] = self.silhouette_score(
-                rprs,
-                true_classes
-            )
-            stats.at[fold, "Separability-Index"] = self.separability_index(
-                rprs,
-                true_classes,
-                n_neighbors=self.params.separability.n_neighbors
-            )
-            stats.at[fold, "Hypothesis-Margin"] = self.hypothesis_margin(
-                rprs,
-                true_classes,
-                n_neighbors=self.params.separability.n_neighbors
-            )
 
         # update fold colum
         stats["fold"] = stats.index
