@@ -1,7 +1,7 @@
-name: DIARIOS++
+name: DIARIOS
 
 dir: resource/dataset/DIARIOS/
-extended_dir: ${data.dir}Extended/${model.name}
+extended_dir: ${data.dir}Extended/BERTimbau
 
 folds: [0,1,2,3,4]
 max_length: 256

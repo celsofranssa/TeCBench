@@ -84,9 +84,39 @@ def inspect_dataset(dataset):
         s = pickle.load(samples_fle)
     print(len(s))
 
+def cls_report(model, dataset):
+    report_path = f"resource/stat/{model}_{dataset}.rpt"
+    with open(report_path, "rb") as rpt_file:
+        rpt = pickle.load(rpt_file)
+    # print(rpt)
+    p, r, f = {}, {}, {}
+    for cls in ["lei", "licitação", "orçamento", "pessoal"]:
+        p[cls] = []
+        r[cls] = []
+        f[cls] = []
+
+    for fold_idx in range(5):
+        for cls in ["lei", "licitação", "orçamento", "pessoal"]:
+
+            p[cls].append(rpt[fold_idx][cls]["precision"])
+            r[cls].append(rpt[fold_idx][cls]["recall"])
+            f[cls].append(rpt[fold_idx][cls]["f1-score"])
+
+    for cls in ["lei", "licitação", "orçamento", "pessoal"]:
+        print(cls)
+        print(f"precision: {mean_confidence_interval(p[cls])}")
+        print(f"recall: {mean_confidence_interval(r[cls])}")
+        print(f"f1: {mean_confidence_interval(f[cls])}")
+
+
+
 
 if __name__ == '__main__':
-    get_ic("LaBSE", "DIARIOS++")
-    #read_prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0, split="test")
-    # inspect_dataset("DIARIOS")
+    # cls_report("BERT", "DIARIOS")
+    # with open(f"resource/dataset/DIARIOS/Extended/BERTimbau_0/samples.pkl", "rb") as samples_fle:
+    #     s = pickle.load(samples_fle)
+    # print(len(s))
+    get_ic("BERT", "DIARIOS")
+    # #read_prediction(model="BERTimbau", dataset="DIARIOS", fold_idx=0, split="test")
+    # # inspect_dataset("DIARIOS")
 

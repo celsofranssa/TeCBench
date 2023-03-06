@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.metrics import f1_score, silhouette_score
+from sklearn.metrics import f1_score, silhouette_score, classification_report
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
@@ -22,6 +22,10 @@ class EvalHelper:
         stats.to_csv(
             self.params.stat.dir + self.params.model.name + "_" + self.params.data.name + ".stat",
             sep='\t', index=False, header=True)
+
+    def checkpoint_reports(self, reports):
+        with open(f"{self.params.stat.dir}{self.params.model.name}_{self.params.data.name}.rpt", "wb") as reports_file:
+            pickle.dump(reports, reports_file)
 
     def _load_ids(self, ids_path):
         with open(ids_path, "rb") as ids_file:
@@ -41,6 +45,7 @@ class EvalHelper:
 
     def perform_eval(self):
         stats = pd.DataFrame(columns=["fold"])
+        cls_reports = {}
 
         for fold in self.params.data.folds:
             true_classes = []
@@ -56,10 +61,16 @@ class EvalHelper:
             stats.at[fold, "Mac-F1"] = f1_score(true_classes, pred_classes, average='macro')
             stats.at[fold, "Wei-F1"] = f1_score(true_classes, pred_classes, average='weighted')
 
+            print(classification_report(true_classes, pred_classes, target_names=self.params.data.labels))
+
+            cls_reports[fold] = classification_report(true_classes, pred_classes, target_names=self.params.data.labels,
+                                                       output_dict=True)
+
         # update fold colum
         stats["fold"] = stats.index
 
         self.checkpoint_stats(stats)
+        self.checkpoint_reports(cls_reports)
 
 
     def silhouette_score(self, X, y):
