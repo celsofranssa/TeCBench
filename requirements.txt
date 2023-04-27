@@ -1,7 +1,7 @@
 hydra-core~=1.2.0
 matplotlib~=3.5.3
 nmslib~=2.1.1
-numpy~=1.22.0
+numpy~=1.21.6
 omegaconf~=2.2.2
 openTSNE~=0.6.2
 pandas~=1.5.1
