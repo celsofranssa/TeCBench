@@ -71,7 +71,7 @@ class EvalHelper:
             predictions = self.load_predictions(fold)
             for prediction in predictions:
                 true_classes.append(prediction["true_cls"])
-                pred_classes.append(prediction["pred_cls"])
+                pred_classes.append(np.argmax(prediction["pred_cls"]))
                 rprs.append(prediction["rpr"])
 
             stats.at[fold, "Mic-F1"] = f1_score(true_classes, pred_classes, average='micro')

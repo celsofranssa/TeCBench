@@ -1,6 +1,6 @@
 defaults:
-  - model: BERT
-  - data: WEBKB
+  - model: BERTimbau
+  - data: PROCON
 
 log:
   dir: resource/log/
@@ -27,9 +27,9 @@ tsne:
 tasks: ["tsne"]
 
 trainer:
-  max_epochs: 8
+  max_epochs: 16
   gpus: 1
-  patience: 3
+  patience: 7
   min_delta: 0.01
   precision: 32
   fast_dev_run: False
