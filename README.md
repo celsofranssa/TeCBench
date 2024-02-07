@@ -7,20 +7,18 @@
 git clone git@github.com:celsofranssa/TeCBench.git
 
 # change directory to project folder
-cd TeCBench/
+cd TeCBench/ && git checkout MPMG
 
 # Create a new virtual environment by choosing a Python interpreter 
 # and making a ./venv directory to hold it:
-virtualenv -p python3 ./venv
+virtualenv -p python3 venv/
 
 # activate the virtual environment using a shell-specific command:
-source ./venv/bin/activate
+source venv/bin/activate
 
 # install dependecies
 pip install -r requirements.txt
 
-# setting python path
-export PYTHONPATH=$PATHONPATH:<path-to-project-dir>/TeCBench/
 
 # (if you need) to exit virtualenv later:
 deactivate
@@ -115,7 +113,7 @@ TeCBench/
 ### 3. Test Run
 The following bash command fits the BERT model over 20NG dataset using batch_size=128 and a single epoch.
 ```
-python main.py tasks=[fit] model=BERT data=20NG data.batch_size=32 trainer.max_epochs=1
+bash run.sh
 ```
 If all goes well the following output should be produced:
 ```
@@ -142,6 +140,3 @@ Epoch 0: 100%|██████████████████████
 
 ```
 
-### Benchmark Results
-
-![bench-results](resource/assets/bench_results.png)
