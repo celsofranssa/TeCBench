@@ -6,6 +6,7 @@ from hydra.utils import instantiate
 from torchmetrics import MetricCollection, F1Score
 from transformers import get_scheduler, get_linear_schedule_with_warmup
 
+
 class TeCModel(pl.LightningModule):
 
     def __init__(self, hparams):
@@ -30,21 +31,18 @@ class TeCModel(pl.LightningModule):
         # loss
         self.loss = instantiate(hparams.criterion)
 
-
     def _get_metrics(self, prefix):
         return MetricCollection(
             metrics={
-                "Mic-F1": F1Score(num_classes=self.hparams.num_classes, average="micro"),
-                "Mac-F1": F1Score(num_classes=self.hparams.num_classes, average="macro"),
-                "Wei-F1": F1Score(num_classes=self.hparams.num_classes, average="weighted")
+                "Mic-F1": F1Score(num_classes=self.hparams.num_classes, average="micro", task="multiclass"),
+                "Mac-F1": F1Score(num_classes=self.hparams.num_classes, average="macro", task="multiclass"),
+                "Wei-F1": F1Score(num_classes=self.hparams.num_classes, average="weighted", task="multiclass")
             },
             prefix=prefix)
-
 
     def forward(self, text):
         rpr = self.encoder(text)
         return rpr, self.cls_head(rpr)
-
 
     def training_step(self, batch, batch_idx):
         text, true_cls = batch["text"], batch["cls"]
@@ -70,7 +68,7 @@ class TeCModel(pl.LightningModule):
         # log val metrics
         self.log_dict(self.val_metrics(torch.argmax(pred_cls, dim=-1), true_cls), prog_bar=True)
 
-    def validation_epoch_end(self, outs):
+    def on_validation_epoch_end(self):
         self.val_metrics.compute()
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
@@ -96,8 +94,8 @@ class TeCModel(pl.LightningModule):
 
         scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, mode='triangular2',
                                                       base_lr=self.hparams.base_lr,
-                                                      max_lr=self.hparams.max_lr, step_size_up=round(0.33 * self.trainer.estimated_stepping_batches),
+                                                      max_lr=self.hparams.max_lr, step_size_up=round(
+                0.33 * self.trainer.estimated_stepping_batches),
                                                       cycle_momentum=False)
 
         return {"optimizer": optimizer, "lr_scheduler": {"scheduler": scheduler, "interval": "step", "name": "SCHDLR"}}
-

@@ -81,13 +81,13 @@ TeCBench/
 │   ├── prediction
 │   ├── representation
 │   └── stat
-├── settings
+├── setting
 │   ├── data
 │   │   ├── 20NG.yaml
 │   │   └── YELP.yaml
 │   ├── model
 │   │   └── BERT.yaml
-│   └── settings.yaml
+│   └── setting.yaml
 └── source
     ├── callback
     │   └── PredictionWriter.py

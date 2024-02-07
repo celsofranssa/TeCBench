@@ -35,7 +35,7 @@ def separability(params):
     separability_helper = SeparabilityHelper(params)
     separability_helper.perform_eval()
 
-@hydra.main(config_path="settings/", config_name="settings.yaml")
+@hydra.main(config_path="setting/", config_name="setting.yaml")
 def perform_tasks(params):
     os.chdir(hydra.utils.get_original_cwd())
     OmegaConf.resolve(params)

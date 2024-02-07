@@ -1,12 +1,12 @@
 # activate venv and set Python path
-source ~/projects/venvs/TeCBench/bin/activate
-export PYTHONPATH=$PATHONPATH:~/projects/TeCBench/
+source venv/bin/activate
+export PYTHONPATH=PYTHONPATH:$pwd
 
 python main.py \
-  tasks=[predict] \
+  tasks=[fit] \
   trainer.precision=32 \
-  model=BERTimbau \
-  data=RECLAMEAQUI \
+  model=BERT \
+  data=20NG \
   data.folds=[0] \
   data.max_length=256 \
   data.batch_size=64

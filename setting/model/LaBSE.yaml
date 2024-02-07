@@ -1,0 +1,40 @@
+name: LaBSE
+
+encoder:
+  _target_: source.encoder.BertEncoder.BertEncoder
+  architecture: sentence-transformers/LaBSE
+  output_attentions: False
+  pooling:
+    _target_: source.pooling.NoPooling.NoPooling
+
+hidden_size: 768
+
+num_classes: ${data.num_classes}
+
+lr: 1e-6
+base_lr: 1e-7
+max_lr: 1e-5
+weight_decay: 1e-2
+
+dropout: 0.1
+
+tokenizer:
+  architecture: ${model.encoder.architecture}
+
+
+loss: CrossEntropyLoss
+criterion:
+  _target_: source.loss.${model.loss}.${model.loss}
+  params:
+    name: ${model.loss}
+    margin: 1.0
+    epsilon: 1e-6
+    reduction: mean
+    swap: False,
+    smooth_loss: False,
+    triplets_per_anchor: "all"
+    temperature: 0.07
+
+stat:
+  dir: resource/stat/
+  name: ${model.name}_${data.name}.stat

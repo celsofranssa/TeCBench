@@ -1,0 +1,37 @@
+defaults:
+  - model: BERTimbau
+  - data: PROCON
+
+log:
+  dir: resource/log/
+
+model_checkpoint:
+  dir: resource/model_checkpoint/
+
+prediction:
+  dir: resource/prediction/${model.name}_${data.name}/
+  fold_id: -1
+  write_interval: batch
+
+stat:
+  dir: resource/stat/
+
+separability:
+  n_neighbors: 1
+
+tsne:
+  dir: resource/tsne/${model.name}_${data.name}/
+  n_jobs: ${data.num_workers}
+  random_state: 42
+
+tasks: ["tsne"]
+
+trainer:
+  max_epochs: 8
+  accelerator: gpu
+  devices: auto
+  patience: 3
+  min_delta: 0.01
+  precision: 32
+  fast_dev_run: False
+  progress_bar_refresh_rate: 1
